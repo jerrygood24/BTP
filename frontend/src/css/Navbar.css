@@ -1,0 +1,61 @@
+/* src/components/Navbar.css */
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .logo {
+    font-family: 'monospace';
+    font-weight: 700;
+    letter-spacing: 0.3rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .ar-icon {
+    display: none;
+    margin-right: 1rem;
+  }
+  
+  .mobile-menu {
+    display: block;
+  
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
+  
+  .mobile-menu-popup {
+    @media (min-width: 960px) {
+      display: none;
+    }
+  }
+  
+  .desktop-menu {
+    display: none;
+  
+    @media (min-width: 960px) {
+      display: block;
+    }
+  }
+  
+  .menu-button {
+    margin: 0 0.5rem;
+    color: white;
+  }
+  
+  .settings {
+    display: block;
+    margin-left: auto;
+  
+    @media (max-width: 960px) {
+      display: none;
+    }
+  }
+  
+  .settings-popup {
+    @media (max-width: 960px) {
+      display: none;
+    }
+  }
+  
