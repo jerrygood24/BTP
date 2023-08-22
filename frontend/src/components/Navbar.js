@@ -1,13 +1,23 @@
-import * as React from 'react';
+import React from 'react';
 import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Button, Tooltip, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Avatar from '@mui/material/Avatar';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
+import { useNavigate } from 'react-router-dom';
 
-const pages = ['Home', '360 Image', 'About', 'Contact'];
+const pages = [ 'Home', 'About', 'Contact' ];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
+  const navigate = useNavigate();
+
+  const handleRedirect = (page) => {
+    handleCloseNavMenu();
+    if(page === 'Home') 
+      navigate('/');
+    else
+      navigate(`/${page.toLowerCase()}`);
+  };
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -79,7 +89,7 @@ function ResponsiveAppBar() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
+                <MenuItem key={page} onClick={() => handleRedirect(page)}>
                   <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
@@ -111,7 +121,9 @@ function ResponsiveAppBar() {
                 onClick={handleCloseNavMenu}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
-                {page}
+                <MenuItem key={page} onClick={() => handleRedirect(page)}>
+                  <Typography textAlign="center">{page}</Typography>
+                </MenuItem>
               </Button>
             ))}
           </Box>
