@@ -127,7 +127,22 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
-
+          
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+            <Button
+              onClick={() => navigate('/login')}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              <Typography textAlign="center">Login</Typography>
+            </Button>
+            <Button
+              onClick={() => navigate('/signup')}
+              sx={{ my: 2, color: 'white', display: 'block' }}
+            >
+              <Typography textAlign="center">Signup</Typography>
+            </Button>
+          </Box>
+          
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
