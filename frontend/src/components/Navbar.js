@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigate } from 'react-router-dom';
 
-const pages = [ 'Home', 'About', 'Contact' ];
+const pages = ['Home', 'Repository', 'About', 'Contact'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -13,11 +13,13 @@ function ResponsiveAppBar() {
 
   const handleRedirect = (page) => {
     handleCloseNavMenu();
-    if(page === 'Home') 
+    if (page === 'Home')
       navigate('/');
     else
       navigate(`/${page.toLowerCase()}`);
   };
+
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false); // State to track user authentication
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -36,13 +38,25 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const handleLogin = () => {
+    // Implement your login logic here
+    setIsAuthenticated(true);
+    handleCloseNavMenu();
+  };
+
+  const handleLogout = () => {
+    // Implement your logout logic here
+    setIsAuthenticated(false);
+    handleCloseUserMenu();
+  };
+
   return (
-    <AppBar position="static">
+    <AppBar position="fixed">
       <Container maxWidth="xl">
         <Toolbar disableGutters className='toolbar'>
           <ViewInArIcon className='logo' sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-          <Typography 
-            variant="h6" 
+          <Typography
+            variant="h6"
             noWrap
             component="a"
             href="/"
@@ -127,50 +141,56 @@ function ResponsiveAppBar() {
               </Button>
             ))}
           </Box>
-          
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            <Button
-              onClick={() => navigate('/login')}
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              <Typography textAlign="center">Login</Typography>
-            </Button>
-            <Button
-              onClick={() => navigate('/signup')}
-              sx={{ my: 2, color: 'white', display: 'block' }}
-            >
-              <Typography textAlign="center">Signup</Typography>
-            </Button>
-          </Box>
-          
+
           <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-              </IconButton>
-            </Tooltip>
-            <Menu
-              sx={{ mt: '45px' }}
-              id="menu-appbar"
-              anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorElUser)}
-              onClose={handleCloseUserMenu}
-            >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
+            {/* Conditionally render avatar and settings menu */}
+            {isAuthenticated ? (
+              <>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </>
+            ) : (
+              // Show login and signup buttons if not authenticated
+              <Box display="flex" alignItems="center">
+                <Button
+                  onClick={() => navigate('/login')}
+                  sx={{ my: 2, mr:2, color: 'white' }}
+                >
+                  <Typography textAlign="center">Login</Typography>
+                </Button>
+                <Button
+                  onClick={() => navigate('/signup')}
+                  sx={{ my: 2, color: 'white' }}
+                >
+                  <Typography textAlign="center">Signup</Typography>
+                </Button>
+              </Box>
+            )}
           </Box>
         </Toolbar>
       </Container>
