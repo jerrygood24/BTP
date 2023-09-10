@@ -12,8 +12,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-function Copyright(props: any) {
+import axios from 'axios';
+function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
       {'Copyright © '}
@@ -26,18 +26,33 @@ function Copyright(props: any) {
   );
 }
 
+
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/accounts/login/', {
+        username: data.get('username'),
+        password: data.get('password'),
+      });
+      console.log(response);
+
+      if (response.status === 200) {
+        // page redirect
+        return (<div> DON DON DON</div>);
+      }
+      else {
+        // invalid details dikhadenge
+      }
+    } catch (error) {
+      // Handle network error
+    }
   };
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -62,10 +77,10 @@ export default function SignIn() {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="username"
+              label="User Name"
+              name="username"
+              autoComplete="username"
               autoFocus
             />
             <TextField
