@@ -1,0 +1,17 @@
+/* Repository.css */
+
+.pano-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .pano-box {
+    width: 80%; /* Adjust the desired width */
+    max-width: 800px; /* Optional: set a maximum width */
+    height: 400px; /* Adjust the desired height */
+    border: 2px solid #000;
+    border-radius: 10px;
+    overflow: hidden; /* Hide any content overflowing the box */
+  }
+  
