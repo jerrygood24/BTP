@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import Marzipano from 'marzipano';
+import '../css/Pano.css'
 
 const Pano = () => {
   useEffect(() => {
@@ -24,7 +25,7 @@ const Pano = () => {
 
     const levels = [
       { tileSize: 512, size: 512 },
-      { tileSize: 256, size: 1024 }
+      { tileSize: 512, size: 1024 }
     ];
 
     const source = Marzipano.ImageUrlSource.fromString('img/hongkong_img.jpg');
@@ -100,7 +101,7 @@ const Pano = () => {
     };
   }, []);
 
-  return <div id="pano" style={{ width: '800px', height: '500px', background: '#ffcccc4d' }}></div>;
+  return <div id="pano" ></div>;
 };
 
 export default Pano;
