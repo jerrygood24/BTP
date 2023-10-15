@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Home', 'Repository', 'About', 'Contact'];
+const pages = ['Home', 'Repository', 'About', 'Contact','FileUpload'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
