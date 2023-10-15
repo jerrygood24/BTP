@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Box from '@mui/material/Box';
-import FileUpload2 from './FileUpload2';
+
 
 function FileUpload() {
   const [selectedFile, setSelectedFile] = useState(null);
