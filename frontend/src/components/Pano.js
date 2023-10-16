@@ -1,7 +1,8 @@
 import React, { useEffect } from "react";
+import { Button } from "@mui/material";
+
 import Marzipano from "marzipano";
 import "../css/Pano.css";
-import { Box, Button } from "@mui/material";
 
 const Pano = () => {
   useEffect(() => {
@@ -64,7 +65,7 @@ const Pano = () => {
     });
 
     // Autorotate will start after 3s of idle time
-    viewer.setIdleMovement(1000, autorotate);
+    viewer.setIdleMovement(500, autorotate);
     // Disable idle movement
     // viewer.setIdleMovement(Infinity);
 
@@ -73,16 +74,7 @@ const Pano = () => {
     // Stop any ongoing automatic movement
     viewer.stopMovement();
 
-    // var imgHotspot = document.createElement('img');
-    // imgHotspot.src = 'img/25530.jpg';
-    // imgHotspot.classList.add('hotspot');
-    // imgHotspot.addEventListener('click', function() {
-    //   switchScene(findSceneById(hotspot.target));
-    // });
-
-    // var position = { yaw: Math.PI/4, pitch: Math.PI/8 };
-
-    // scene.hotspotContainer().createHotspot(imgHotspot, position);
+    
   }, []);
 
   // Handle resizing of the Marzipano canvas
