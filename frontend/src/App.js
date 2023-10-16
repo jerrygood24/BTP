@@ -8,6 +8,7 @@ import LoginPage from './pages/Login';
 import SignUp from './pages/Signup';
 import Repository from './pages/Repository';
 import { CssBaseline, Box } from '@mui/material';
+import FileUpload from './components/FileUpload';
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/contact" element = {<Contact />} />
         <Route path="/login" element = {<LoginPage />} />
         <Route path="/signup" element = {<SignUp />} />
+        <Route path="/fileupload" element = {<FileUpload/>}></Route>
       </Routes>
     </Router>
   );
