@@ -10,19 +10,40 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import axios from 'axios';
 
 function SignUp() {
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      firstName: data.get('firstName'),
-      lastName: data.get('lastName'),
-      email: data.get('email'),
-      password: data.get('password'),
-      // Additional fields can be added here
-    });
+    // console.log(data.get('username'));
+    const dataToSend = {
+      firstname: data.get('firstname'),
+      lastname: data.get('lastname'),
+      password1: data.get('password1'),
+      password2: data.get('password2'),
+      role: data.get('role'),
+      username: data.get('username'),
+    };
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/accounts/register/', dataToSend, {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      if (response.status === 200) {
+        return (<div> Don DON Don</div>);
+      }
+      else {
+        // invalid details dikhadenge
+      }
+    } catch (error) {
+      // Handle network error
+      console.error("Error:", error.response.data);
+    }
   };
+
 
   return (
     <ThemeProvider theme={createTheme()}>
@@ -47,7 +68,7 @@ function SignUp() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="fname"
-                  name="firstName"
+                  name="firstname"
                   required
                   fullWidth
                   id="firstName"
@@ -60,7 +81,7 @@ function SignUp() {
                   fullWidth
                   id="lastName"
                   label="Last Name"
-                  name="lastName"
+                  name="lastname"
                   autoComplete="lname"
                 />
               </Grid>
@@ -68,22 +89,40 @@ function SignUp() {
                 <TextField
                   required
                   fullWidth
-                  id="email"
-                  label="Email Address"
-                  name="email"
-                  autoComplete="email"
+                  id="username"
+                  label="User Name"
+                  name="username"
+                  autoComplete="username"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
-                  name="password"
+                  name="password1"
                   label="Password"
                   type="password"
                   id="password"
                   autoComplete="new-password"
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password2"
+                  label="Confirm Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <label>Role:</label>
+                <select name="role" required>
+                  <option value="student">Student</option>
+                  <option value="teacher">Teacher</option>
+                </select>
               </Grid>
               {/* Additional fields can be added here */}
             </Grid>
