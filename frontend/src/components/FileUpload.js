@@ -2,19 +2,25 @@ import React, { useState } from 'react';
 import Button from '@mui/material/Button';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import Box from '@mui/material/Box';
+import axios from 'axios';
+import axiosInstance from '../utils/api';
 
 
 function FileUpload() {
   const [selectedFile, setSelectedFile] = useState(null);
-
+  const [name,setName] = useState("")
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
+    setName(e.target.files[0].name);
   };
-
+  // const handleNameChange = (e) => {
+  //   setName(e.target.value);
+  // };
   const handleDrop = (e) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
     setSelectedFile(droppedFile);
+    setName(droppedFile.name);
   };
 
   const handleDragOver = (e) => {
@@ -23,9 +29,25 @@ function FileUpload() {
 
   const handleUpload = () => {
     if (selectedFile) {
-      // You can handle the file upload logic here, e.g., send the file to the server.
-      console.log('Selected File:', selectedFile);
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+      formData.append('name', name);
 
+
+        axios.post('http://127.0.0.1:8000/accounts/imageQuery/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            // 'Authorization': `Bearer ${authToken}`,
+          },
+        })
+        .then((response) => {
+          console.log('File uploaded successfully:', response.data);
+
+        })
+        .catch((error) => {
+          console.error('Error uploading file:', error);
+        });
+ 
     
     }
   };
@@ -74,6 +96,13 @@ function FileUpload() {
         </label>
         {selectedFile && <div>Selected File: {selectedFile.name}</div>}
       </div>
+      {/* <input
+        type="text"
+        placeholder="Enter a name"
+        value={name}
+        onChange={handleNameChange}
+      /> */}
+      {/* {selectedFile && <div>Selected File: {selectedFile.name}</div>} */}
       <Box mt={2}>
         <Button
           variant="contained"
