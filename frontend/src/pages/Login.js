@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,6 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 import axios from 'axios';
 function Copyright(props) {
   return (
@@ -31,18 +33,27 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignIn() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/accounts/login/', {
+      const response = await axios.post('http://127.0.0.1:8000/accounts/dj-rest-auth/login/', {
         username: data.get('username'),
         password: data.get('password'),
       });
       console.log(response);
 
       if (response.status === 200) {
-        // page redirect
+        setIsLoggedIn(true);
+        // response.json().then(data => {
+        //   const token = data.access;
+        //   localStorage.setItem('authToken', token);
+        // });
+        // setAccessToken(response.data['Token']);
+        // const accessToken = response.data.access_token;
+        // localStorage.setItem('access_token', accessToken);
         return (<div> DON DON DON</div>);
       }
       else {
@@ -105,6 +116,7 @@ export default function SignIn() {
             >
               Sign In
             </Button>
+            {isLoggedIn && <div>You have successfully logged in.</div>}
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">

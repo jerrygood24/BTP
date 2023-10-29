@@ -18,8 +18,8 @@ function SignUp() {
     const data = new FormData(event.currentTarget);
     // console.log(data.get('username'));
     const dataToSend = {
-      firstname: data.get('firstname'),
-      lastname: data.get('lastname'),
+      first_name: data.get('firstname'),
+      last_name: data.get('lastname'),
       password1: data.get('password1'),
       password2: data.get('password2'),
       role: data.get('role'),
@@ -33,6 +33,7 @@ function SignUp() {
       });
 
       if (response.status === 200) {
+        localStorage.setItem('authToken', data.access)
         return (<div> Don DON Don</div>);
       }
       else {
