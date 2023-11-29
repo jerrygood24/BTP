@@ -34,6 +34,7 @@ function SignUp() {
 
       if (response.status === 200) {
         localStorage.setItem('authToken', data.access)
+        console.log("signup success")
         return (<div> Don DON Don</div>);
       }
       else {

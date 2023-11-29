@@ -47,6 +47,7 @@ export default function SignIn() {
 
       if (response.status === 200) {
         setIsLoggedIn(true);
+        console.log("login success")
         // response.json().then(data => {
         //   const token = data.access;
         //   localStorage.setItem('authToken', token);

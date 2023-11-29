@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
 import { Box, Button } from "@mui/material";
 
-const Pano = () => {
+const Pano = ({ imageUrl }) => {
   useEffect(() => {
     console.log("Initializing Marzipano viewer...");
 
@@ -29,7 +29,7 @@ const Pano = () => {
       { tileSize: 512, size: 1024 },
     ];
 
-    const source = Marzipano.ImageUrlSource.fromString("img/hongkong_img.jpg");
+    const source = Marzipano.ImageUrlSource.fromString(imageUrl);
     const geometry = new Marzipano.EquirectGeometry(levels);
     // const limiter = Marzipano.RectilinearView.limit.traditional(1024, 100 * Math.PI / 180);
     const view = new Marzipano.RectilinearView();
@@ -83,7 +83,7 @@ const Pano = () => {
     // var position = { yaw: Math.PI/4, pitch: Math.PI/8 };
 
     // scene.hotspotContainer().createHotspot(imgHotspot, position);
-  }, []);
+  }, [imageUrl]);
 
   // Handle resizing of the Marzipano canvas
   const handleResize = () => {
