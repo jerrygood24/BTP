@@ -4,7 +4,8 @@ import "../css/Pano.css";
 import { Box, Button } from "@mui/material";
 
 const Pano = () => {
-  useEffect(() => {
+
+ useEffect(() => {
     console.log("Initializing Marzipano viewer...");
 
     const panoElement = document.getElementById("pano");
@@ -31,20 +32,23 @@ const Pano = () => {
 
     const source = Marzipano.ImageUrlSource.fromString("img/hongkong_img.jpg");
     const geometry = new Marzipano.EquirectGeometry(levels);
-    // const limiter = Marzipano.RectilinearView.limit.traditional(1024, 100 * Math.PI / 180);
     const view = new Marzipano.RectilinearView();
 
     const scene = viewer.createScene({
       source: source,
       geometry: geometry,
       view: view,
-      // pinFirstLevel: true,
     });
 
     scene.switchTo({
       transitionDuration: 1000,
     });
+    const hotspotElement = document.createElement("div");
+  hotspotElement.className = "hotspot";
+  hotspotElement.innerText = "Welcome to Hong Kong!"; // Text content for the hotspot
 
+  const hotspotPosition = { yaw: Math.PI / 4, pitch: Math.PI / 6 }; // Example position
+  const hotspot = scene.hotspotContainer().createHotspot(hotspotElement, hotspotPosition);
     var destinationViewParameters = {
       yaw: (10 * Math.PI) / 180,
       pitch: (15 * Math.PI) / 180,
@@ -73,41 +77,37 @@ const Pano = () => {
     // Stop any ongoing automatic movement
     viewer.stopMovement();
 
-    // var imgHotspot = document.createElement('img');
-    // imgHotspot.src = 'img/25530.jpg';
-    // imgHotspot.classList.add('hotspot');
-    // imgHotspot.addEventListener('click', function() {
-    //   switchScene(findSceneById(hotspot.target));
-    // });
+    // Create the hotspot
 
-    // var position = { yaw: Math.PI/4, pitch: Math.PI/8 };
 
-    // scene.hotspotContainer().createHotspot(imgHotspot, position);
-  }, []);
+    // Add the hotspot to the scene
 
-  // Handle resizing of the Marzipano canvas
-  const handleResize = () => {
+
+ }, []);
+
+ // Handle resizing of the Marzipano canvas
+ const handleResize = () => {
     const panoElement = document.getElementById("pano");
     const viewer = panoElement.marzipanoViewer;
 
     if (viewer) {
       viewer.resize();
     }
-  };
+ };
 
-  useEffect(() => {
+ useEffect(() => {
     window.addEventListener("resize", handleResize);
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+ }, []);
 
-  return (
+ return (
     <>
       <div id="pano"></div>
       <Button> Left </Button>
     </>
-  );
+ );
 };
 
 export default Pano;
