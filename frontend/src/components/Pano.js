@@ -1,9 +1,13 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
-import { Box, Button } from "@mui/material";
+import hotspotImage from "../data/hotspot.png"; // Ensure this path is correct
+import { Button } from "@mui/material";
 
 const Pano = () => {
+  const viewerRef = useRef(null);
+  const [isAutoRotatePaused, setIsAutoRotatePaused] = useState(false);
+
   useEffect(() => {
     console.log("Initializing Marzipano viewer...");
 
@@ -23,6 +27,7 @@ const Pano = () => {
     };
 
     const viewer = new Marzipano.Viewer(panoElement, viewerOpts);
+    viewerRef.current = viewer;
 
     const levels = [
       { tileSize: 512, size: 512 },
@@ -31,16 +36,42 @@ const Pano = () => {
 
     const source = Marzipano.ImageUrlSource.fromString("img/hongkong_img.jpg");
     const geometry = new Marzipano.EquirectGeometry(levels);
-    // const limiter = Marzipano.RectilinearView.limit.traditional(1024, 100 * Math.PI / 180);
     const view = new Marzipano.RectilinearView();
 
     const scene = viewer.createScene({
       source: source,
       geometry: geometry,
       view: view,
-      // pinFirstLevel: true,
     });
 
+    const hotspotDiv = document.createElement("div");
+    hotspotDiv.classList.add("hotspot");
+    hotspotDiv.style.backgroundImage = `url('${hotspotImage}')`;
+
+    const hotspotPosition = { yaw: Math.PI / 4, pitch: Math.PI / 8 };
+
+    scene.hotspotContainer().createHotspot(hotspotDiv, hotspotPosition);
+
+    const dropdownContainer = document.createElement("div");
+    dropdownContainer.classList.add("dropdown-container");
+
+    const heading = document.createElement("h3");
+    heading.innerText = "Hotspot Title";
+
+    const description = document.createElement("p");
+    description.innerText = "Description of the hotspot.";
+
+    dropdownContainer.appendChild(heading);
+    dropdownContainer.appendChild(description);
+
+    hotspotDiv.appendChild(dropdownContainer);
+
+    hotspotDiv.addEventListener("click", () => {
+      dropdownContainer.style.display =
+        dropdownContainer.style.display === "block" ? "none" : "block";
+    });
+
+    scene.hotspotContainer().createHotspot(hotspotDiv, hotspotPosition);
     scene.switchTo({
       transitionDuration: 1000,
     });
@@ -58,38 +89,15 @@ const Pano = () => {
     scene.lookTo(destinationViewParameters, options);
 
     var autorotate = Marzipano.autorotate({
-      yawSpeed: 0.1, // Yaw rotation speed
-      targetPitch: 0, // Pitch value to converge to
-      targetFov: Math.PI / 2, // Fov value to converge to
+      yawSpeed: 0.1,
+      targetPitch: 0,
+      targetFov: Math.PI / 2,
     });
 
-    // Autorotate will start after 3s of idle time
-    viewer.setIdleMovement(1000, autorotate);
-    // Disable idle movement
-    // viewer.setIdleMovement(Infinity);
-
-    // Start autorotation immediately
-    viewer.startMovement(autorotate);
-    // Stop any ongoing automatic movement
-    viewer.stopMovement();
-
-    // var imgHotspot = document.createElement('img');
-    // imgHotspot.src = 'img/25530.jpg';
-    // imgHotspot.classList.add('hotspot');
-    // imgHotspot.addEventListener('click', function() {
-    //   switchScene(findSceneById(hotspot.target));
-    // });
-
-    // var position = { yaw: Math.PI/4, pitch: Math.PI/8 };
-
-    // scene.hotspotContainer().createHotspot(imgHotspot, position);
   }, []);
 
-  // Handle resizing of the Marzipano canvas
   const handleResize = () => {
-    const panoElement = document.getElementById("pano");
-    const viewer = panoElement.marzipanoViewer;
-
+    const viewer = viewerRef.current;
     if (viewer) {
       viewer.resize();
     }
@@ -102,11 +110,32 @@ const Pano = () => {
     };
   }, []);
 
+  const toggleAutoRotate = () => {
+    const viewer = viewerRef.current;
+    if (viewer) {
+      if (isAutoRotatePaused) {
+        const autorotate = Marzipano.autorotate({
+          yawSpeed: 0.1,
+          targetPitch: 0,
+          targetFov: Math.PI / 2,
+        });
+        viewer.startMovement(autorotate);
+      } else {
+        viewer.stopMovement(); // Stop auto-rotation
+      }
+      setIsAutoRotatePaused(!isAutoRotatePaused);
+    }
+  };
+
+
   return (
-    <>
-      <div id="pano"></div>
-      <Button> Left </Button>
-    </>
+    <div id="pano" className="pano-container">
+      <div className="navigation-buttons">
+        <Button onClick={toggleAutoRotate}>
+          {isAutoRotatePaused ? "Play" : "Pause"}
+        </Button>
+      </div>
+    </div>
   );
 };
 

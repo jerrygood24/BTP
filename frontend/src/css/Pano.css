@@ -24,3 +24,45 @@
     display: block;
   }
   
+  /* Styling for the hotspot container */
+.hotspot {
+  width: 100px; /* Width of the hotspot */
+  height: 100px; /* Height of the hotspot */
+  position: absolute; /* Positioning the hotspot */
+  cursor: pointer; /* Change cursor on hover */
+}
+
+/* Styling for the dropdown container */
+.dropdown-container {
+  position: absolute; /* Positioning the dropdown */
+  background-color: #f0f0f0; /* Background color of the dropdown */
+  padding: 10px; /* Padding for content inside the dropdown */
+  border-radius: 5px; /* Rounded corners for the dropdown */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Drop shadow for the dropdown */
+  display: none; /* Initially hide the dropdown */
+}
+
+/* Styling for the heading */
+.dropdown-container h3 {
+  margin: 0; /* Remove default margin */
+  font-size: 16px; /* Font size for the heading */
+  color: #333; /* Text color for the heading */
+}
+
+/* Styling for the description */
+.dropdown-container p {
+  margin: 5px 0; /* Add margin to separate heading and description */
+  font-size: 14px; /* Font size for the description */
+  color: #666; /* Text color for the description */
+}
+
+.pano-container {
+  position: relative; /* Ensure the container is positioned relative */
+}
+
+.navigation-buttons {
+  position: absolute; /* Position the buttons absolutely */
+  top: 20px; /* Adjust the top position as needed */
+  right: 20px; /* Adjust the right position as needed */
+  z-index: 999; /* Set a higher z-index to make sure buttons appear in front */
+}
