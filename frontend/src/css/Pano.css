@@ -32,6 +32,9 @@
     width: 100%;
     height: 100%;
   }
+  button {
+    display: inline-block;
+  }
   
   #pano canvas {
     width: 100%;

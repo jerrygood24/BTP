@@ -1,113 +1,153 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
 import { Box, Button } from "@mui/material";
 
 const Pano = () => {
+  // Use state to keep track of the Marzipano viewer
+  const [viewer, setViewer] = useState(null);
+  // Store scenes in state to make them accessible for scene switching
+  const [scenes, setScenes] = useState([]);
 
- useEffect(() => {
+  useEffect(() => {
     console.log("Initializing Marzipano viewer...");
 
-    const panoElement = document.getElementById("pano");
-
-    // Check if the viewer has already been created for this element
-    if (panoElement.marzipanoViewer) {
-      console.log("Marzipano viewer already initialized.");
-      return;
-    }
-
+ const panoElement = document.getElementById("pano");
+ if (!panoElement.marzipanoViewer) {
     // Create the viewer
     const viewerOpts = {
       controls: {
         mouseViewMode: "drag",
       },
+      
     };
 
-    const viewer = new Marzipano.Viewer(panoElement, viewerOpts);
+    const newViewer = new Marzipano.Viewer(panoElement, viewerOpts);
+    console.log("viewer initialized:", newViewer)
+    // panoElement.marzipanoViewer = newViewer; // Store the viewer for later reference
+//sajkdhaskjd
+    setViewer(newViewer);
+ }
+  }, []);
 
-    const levels = [
-      { tileSize: 512, size: 512 },
-      { tileSize: 512, size: 1024 },
-    ];
-
-    const source = Marzipano.ImageUrlSource.fromString("img/hongkong_img.jpg");
-    const geometry = new Marzipano.EquirectGeometry(levels);
-    const view = new Marzipano.RectilinearView();
-
-    const scene = viewer.createScene({
-      source: source,
-      geometry: geometry,
-      view: view,
-    });
-
-    scene.switchTo({
-      transitionDuration: 1000,
-    });
-    const hotspotElement = document.createElement("div");
-  hotspotElement.className = "hotspot";
-  hotspotElement.innerText = "Welcome to Hong Kong!"; // Text content for the hotspot
-
-  const hotspotPosition = { yaw: Math.PI / 4, pitch: Math.PI / 6 }; // Example position
-  const hotspot = scene.hotspotContainer().createHotspot(hotspotElement, hotspotPosition);
-    var destinationViewParameters = {
-      yaw: (10 * Math.PI) / 180,
-      pitch: (15 * Math.PI) / 180,
-      fov: (60 * Math.PI) / 180,
-    };
-
-    var options = {
-      transitionDuration: 2000,
-    };
-
-    scene.lookTo(destinationViewParameters, options);
-
-    var autorotate = Marzipano.autorotate({
-      yawSpeed: 0.1, // Yaw rotation speed
-      targetPitch: 0, // Pitch value to converge to
-      targetFov: Math.PI / 2, // Fov value to converge to
-    });
-
-    // Autorotate will start after 3s of idle time
-    viewer.setIdleMovement(1000, autorotate);
-    // Disable idle movement
-    // viewer.setIdleMovement(Infinity);
-
-    // Start autorotation immediately
-    viewer.startMovement(autorotate);
-    // Stop any ongoing automatic movement
-    viewer.stopMovement();
-
-    // Create the hotspot
-
-
-    // Add the hotspot to the scene
-
-
- }, []);
-
- // Handle resizing of the Marzipano canvas
- const handleResize = () => {
-    const panoElement = document.getElementById("pano");
-    const viewer = panoElement.marzipanoViewer;
-
+  useEffect(() => {
     if (viewer) {
-      viewer.resize();
+      const scenesData = [
+        {
+          id: "hongkong",
+          imagePath: "img/hongkong_img.jpg",
+          hotspots: [
+            {
+              id: "hk-spot1",
+              text: "Welcome to Hong Kong!",
+              yaw: Math.PI / 4,
+              pitch: Math.PI / 6,
+            },
+          ],
+        },
+        {
+          id: "newyork",
+          imagePath: "img/b3.jpeg",
+          hotspots: [
+            {
+              id: "ny-spot1",
+              text: "Welcome to New York!",
+              yaw: -Math.PI / 4,
+              pitch: Math.PI / 6,
+            },
+          ],
+        },
+      ];
+
+      const initializedScenes = scenesData.map((data) => {
+        const levels = [
+          { tileSize: 512, size: 512 },
+          { tileSize: 512, size: 1024 },
+        ];
+        const source = Marzipano.ImageUrlSource.fromString(data.imagePath);
+        const geometry = new Marzipano.EquirectGeometry(levels);
+        const view = new Marzipano.RectilinearView();
+
+        const scene = viewer.createScene({
+          source: source,
+          geometry: geometry,
+          view: view,
+        });
+
+        // Initialize and store hotspots for each scene
+        data.hotspots.forEach((hotspotData) => {
+          const element = document.createElement("div");
+          element.className = "hotspot";
+          element.innerText = hotspotData.text;
+          scene.hotspotContainer().createHotspot(element, {
+            yaw: hotspotData.yaw,
+            pitch: hotspotData.pitch,
+          });
+        });
+
+        return {
+          id: data.id,
+          scene: scene,
+          hotspots: data.hotspots,
+        };
+      });
+      console.log('Scenes initialized:', initializedScenes);
+      setScenes(initializedScenes);
+      // console.log(scenes);
+      console.log('Scenes state variable:', scenes); // Add this line
+      // Automatically switch to the first scene
+      // initializedScenes[0]?.scene.switchTo();
+      if (initializedScenes.length > 0) {
+        initializedScenes[0].scene.switchTo(); // Switch to the first scene
+      }
     }
- };
+  }, [viewer]);
 
- useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
- }, []);
+  // Define switchScene as a useCallback to ensure it does not get recreated on each render
+  // const switchScene = useCallback(
+  //   (sceneId) => {
+  //     const sceneToSwitch = scenes.find((s) => s.id === sceneId)?.scene;
+  //     sceneToSwitch?.switchTo();
+  //   },
+  //   [scenes]
+  // );
+  const switchScene = (sceneId) => {
+    const sceneToSwitch = scenes.find(scene => scene.id === sceneId);
+    sceneToSwitch?.scene.switchTo();
+  };
+  // const switchScene = (sceneId) => {
+  //   const sceneToSwitch = scenes.find((s) => s.id === sceneId)?.scene;
+  //   sceneToSwitch?.switchTo();
+  // };
 
- return (
+  // Handle resizing of the Marzipano canvas
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     viewer?.resize();
+  //   };
+
+  //   window.addEventListener("resize", handleResize);
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, [viewer]);
+
+  return (
     <>
-      <div id="pano"></div>
-      <Button> Left </Button>
+      <div id="pano" style={{ width: '100%', height: '500px' }}></div>
+    {scenes.length === 0 ? (
+      <p>Loading scenes...</p>
+    ) : (
+      <Box sx={{ display: 'flex', justifyContent: 'center', p: 1 }}>
+        {scenes.map((scene) => (
+          <Button key={scene.id} onClick={() => switchScene(scene.id)} variant="contained" color="primary" style={{ margin: '0 10px' }}>
+            {scene.id.charAt(0).toUpperCase() + scene.id.slice(1)}
+          </Button>
+        ))}
+      </Box>
+    )}
     </>
- );
+  );
 };
 
 export default Pano;
