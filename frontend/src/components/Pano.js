@@ -8,7 +8,26 @@ const Pano = () => {
   const [viewer, setViewer] = useState(null);
   // Store scenes in state to make them accessible for scene switching
   const [scenes, setScenes] = useState([]);
+  
+  const fetchScenesAndHotspots = async () => {
+    try {
+      // Fetch scenes
+      const scenesResponse = await fetch('http://127.0.0.1:8000/accounts/scenes/');
+      const scenesData = await scenesResponse.json();
+      
+      // Fetch hotspots for each scene
+      for (const scene of scenesData) {
+        const hotspotsResponse = await fetch(`http://127.0.0.1:8000/accounts/hotspots/?scene=${scene.id}`);
+        const hotspotsData = await hotspotsResponse.json();
+        scene.hotspots = hotspotsData; // Attach hotspots to the scene object
+      }
 
+      setScenes(scenesData); // Set the scenes state with hotspots included
+      console.log("Scenes Added: ", scenesData);
+    } catch (error) {
+      console.error('Error fetching scenes and hotspots:', error);
+    }
+  };
   useEffect(() => {
     console.log("Initializing Marzipano viewer...");
 
@@ -27,79 +46,59 @@ const Pano = () => {
     // panoElement.marzipanoViewer = newViewer; // Store the viewer for later reference
 //sajkdhaskjd
     setViewer(newViewer);
+    fetchScenesAndHotspots();
  }
   }, []);
 
   useEffect(() => {
-    if (viewer) {
-      const scenesData = [
-        {
-          id: "hongkong",
-          imagePath: "img/hongkong_img.jpg",
-          hotspots: [
-            {
-              id: "hk-spot1",
-              text: "Welcome to Hong Kong!",
-              yaw: Math.PI / 4,
-              pitch: Math.PI / 6,
-            },
-          ],
-        },
-        {
-          id: "newyork",
-          imagePath: "img/b3.jpeg",
-          hotspots: [
-            {
-              id: "ny-spot1",
-              text: "Welcome to New York!",
-              yaw: -Math.PI / 4,
-              pitch: Math.PI / 6,
-            },
-          ],
-        },
-      ];
-
-      const initializedScenes = scenesData.map((data) => {
+    if (viewer && scenes.length > 0) {
+      console.log('First scene:', scenes[0]);
+      console.log('Second scene:', scenes[1]);
+      // if (scenes[0].scene) {
+      //   scenes[0].scene.switchTo();
+      // } else {
+      //   console.error('First scene is not initialized correctly');
+      // }
+      const newScenes = scenes.map(sceneData => {
+        // Create Marzipano scene here
         const levels = [
           { tileSize: 512, size: 512 },
           { tileSize: 512, size: 1024 },
         ];
-        const source = Marzipano.ImageUrlSource.fromString(data.imagePath);
+        const source = Marzipano.ImageUrlSource.fromString(sceneData.imagePath);
         const geometry = new Marzipano.EquirectGeometry(levels);
-        const view = new Marzipano.RectilinearView();
-
-        const scene = viewer.createScene({
+        const limiter = Marzipano.RectilinearView.limit.traditional(1024, 120*Math.PI/180);
+        const view = new Marzipano.RectilinearView(null, limiter);
+  
+        const marzipanoScene = viewer.createScene({
           source: source,
           geometry: geometry,
           view: view,
+          pinFirstLevel: true
         });
-
-        // Initialize and store hotspots for each scene
-        data.hotspots.forEach((hotspotData) => {
-          const element = document.createElement("div");
-          element.className = "hotspot";
-          element.innerText = hotspotData.text;
-          scene.hotspotContainer().createHotspot(element, {
-            yaw: hotspotData.yaw,
-            pitch: hotspotData.pitch,
-          });
+        
+        
+        // Add hotspots to Marzipano scene
+        sceneData.hotspots.forEach(hotspot => {
+          var element = document.createElement('div');
+          element.classList.add('hotspot');
+          element.innerText = hotspot.text;
+          marzipanoScene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
         });
-
-        return {
-          id: data.id,
-          scene: scene,
-          hotspots: data.hotspots,
-        };
+  
+        // Return new object with Marzipano scene included
+        return { ...sceneData, scene: marzipanoScene };
       });
-      console.log('Scenes initialized:', initializedScenes);
-      setScenes(initializedScenes);
-      // console.log(scenes);
-      console.log('Scenes state variable:', scenes); // Add this line
+  
+      // Update the scenes state with the new scenes that include the Marzipano objects
+      setScenes(newScenes);
+  
       // Automatically switch to the first scene
-      // initializedScenes[0]?.scene.switchTo();
-      if (initializedScenes.length > 0) {
-        initializedScenes[0].scene.switchTo(); // Switch to the first scene
-      }
+      newScenes[0].scene.switchTo();
+  
+    }
+    else{
+      console.log('No viewer or scenes available');
     }
   }, [viewer]);
 
@@ -112,8 +111,22 @@ const Pano = () => {
   //   [scenes]
   // );
   const switchScene = (sceneId) => {
-    const sceneToSwitch = scenes.find(scene => scene.id === sceneId);
-    sceneToSwitch?.scene.switchTo();
+    // console.log('Available scenes:', scenes);
+    console.log('Attempting to switch scene. Available scenes:', scenes);
+    console.log('Trying to switch to scene ID:', sceneId);
+  
+  // Find the scene by ID
+  const sceneToSwitch = scenes.find(scene => scene.id === sceneId);
+  
+  // Log the scene we're trying to switch to
+  console.log('Switching to scene:', sceneToSwitch);
+
+  if (sceneToSwitch && sceneToSwitch.scene) {
+    console.log('Found scene, switching...', sceneToSwitch);
+    sceneToSwitch.scene.switchTo();
+  } else {
+    console.error('Scene to switch to was not found or is not initialized correctly');
+  }
   };
   // const switchScene = (sceneId) => {
   //   const sceneToSwitch = scenes.find((s) => s.id === sceneId)?.scene;
@@ -139,11 +152,21 @@ const Pano = () => {
       <p>Loading scenes...</p>
     ) : (
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 1 }}>
-        {scenes.map((scene) => (
-          <Button key={scene.id} onClick={() => switchScene(scene.id)} variant="contained" color="primary" style={{ margin: '0 10px' }}>
-            {scene.id.charAt(0).toUpperCase() + scene.id.slice(1)}
-          </Button>
-        ))}
+        {scenes.map((scene) => {
+          // Ensure scene.id is a string
+          const sceneId = String(scene.id);
+          return (
+            <Button
+              key={sceneId}
+              onClick={() => switchScene(sceneId)}
+              variant="contained"
+              color="primary"
+              style={{ margin: '0 10px' }}
+            >
+              {sceneId.charAt(0).toUpperCase() + sceneId.slice(1)}
+            </Button>
+          );
+        })}
       </Box>
     )}
     </>
