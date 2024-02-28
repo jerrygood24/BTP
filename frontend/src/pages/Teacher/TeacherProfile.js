@@ -3,21 +3,21 @@ import LessonDetails from "./LessonDetails";
 import TeacherDetails from "./TeacherDetails";
 
 const TeacherProfile = () => {
-    return (  
+    return (
 
-      
-        <Box 
-        
-        display={"flex"}
-        flexDirection={"row"}
-        alignItems={"center"}
+
+        <Box
+
+            display={"flex"}
+            flexDirection={"row"}
+            alignItems={"center"}
         >
 
-        <TeacherDetails/>
-        <LessonDetails/>
+            <TeacherDetails />
+            <LessonDetails />
         </Box>
-        
+
     );
 }
- 
+
 export default TeacherProfile;

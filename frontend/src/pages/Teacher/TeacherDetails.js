@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -9,22 +9,43 @@ import {
   IconButton,
   TextField,
   Typography,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DialogTitle from "@mui/material/DialogTitle";
-
-const TeacherDetails = () => {
+import axios from "axios";
+const TeacherDetails = (props) => {
   const initialData = {
     profilePicture: "img/profile.png",
-    name: "Harsh Jha",
+    name: "Akshat Jha",
     organizationname: "IIT Kharagpur",
-    subject: "Mathematics",
-    totalLessons: 10,
+    subject: ['Mathematics', 'English', 'Science', 'Hindi'],
   };
+  axios.get("http://127.0.0.1:8000/accounts/teachers/1/").then(response => (console.log(response)));
+
+
 
   const [data, setData] = useState(initialData);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState({ ...initialData });
+  const [subjectMenuAnchor, setSubjectMenuAnchor] = useState(null);
+  const [studentsmenuanchor, setStudentsmenuanchor] = useState(null);
+  const [subhead, setsubhead] = useState("Subjects");
+  const [students, setStudents] = useState(['Klaus','Ella D Verma','Stefen','Louis']);
+  const [subject_selected,setsubject_selected]=useState(false);
+  const handleSubjectClick = (subject) => {
+    setSubjectMenuAnchor(null);
+    setsubhead(subject);
+    props.onSubjectSelect(subject);
+    setsubject_selected(true);
+    // handleEditClick("Subject");
+  };
+  const handleStudentClick = (subject) => {
+    
+    //open student dashboard
+  };
 
   const handleEditClick = (field) => {
     setEditData({ ...data });
@@ -47,11 +68,11 @@ const TeacherDetails = () => {
   };
 
   return (
-    <Box sx={{ m: 2, p: 2 ,height:300,width:200, border:2}} >
-     
+    <Box sx={{ m: 2, p: 2, height: 300, width: 200, border: 2 }} >
+
       <Box display="flex" flexDirection="column" mt={2}>
-        <Box display={"flex"} direction={"row"} justifyContent={"center"} sx={{m:2}}>
-          <Avatar>H</Avatar>
+        <Box display={"flex"} direction={"row"} justifyContent={"center"} sx={{ m: 2 }}>
+          <Avatar>A</Avatar>
         </Box>
 
         <Box display={"flex"} direction={"row"} justifyContent={"space-between"}>
@@ -68,15 +89,26 @@ const TeacherDetails = () => {
           </IconButton>
         </Box>
 
-        <Box display={"flex"} direction={"row"} alignItems="center"  justifyContent={"space-between"}>
-          <Typography>{data.subject}</Typography>
-
-          <IconButton onClick={() => handleEditClick("Subject")}>
-            <EditIcon />
-          </IconButton>
+        <Box display={"flex"} direction={"row"} alignItems="center" justifyContent={"space-between"}>
+          <Box>
+            <Typography onClick={(e) =>{ setSubjectMenuAnchor(e.currentTarget)}}>
+              {subhead} <ExpandMoreIcon />
+            </Typography>
+            <Menu
+              anchorEl={subjectMenuAnchor}
+              open={Boolean(subjectMenuAnchor)}
+              onClose={() => setSubjectMenuAnchor(null)}
+            >
+              {data.subject.map((subject, index) => (
+                <MenuItem key={index} onClick={() => handleSubjectClick(subject)}>
+                  {subject}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
         </Box>
 
-        <Typography>Total Lessons: {data.totalLessons}</Typography>
+        <Typography>Total Subjects: {data.subject.length}</Typography>
       </Box>
 
       {editMode && (
@@ -84,7 +116,7 @@ const TeacherDetails = () => {
           <DialogTitle>Edit {editMode}</DialogTitle>
           <DialogContent>
             <TextField
-            //   label={editMode}
+              //   label={editMode}
               name={editMode.toLowerCase()}
               value={editData[editMode.toLowerCase()]}
               onChange={handleChange}
@@ -101,6 +133,25 @@ const TeacherDetails = () => {
           </DialogActions>
         </Dialog>
       )}
+       {subject_selected && (<Box display={"flex"} direction={"row"} alignItems="center" justifyContent={"space-between"}>
+          <Box>
+            <Typography onClick={(e) => setStudentsmenuanchor(e.currentTarget)}>
+              Students <ExpandMoreIcon />
+            </Typography>
+            <Menu
+              anchorEl={studentsmenuanchor}
+              open={Boolean(studentsmenuanchor)}
+              onClose={() => setStudentsmenuanchor(null)}
+            >
+              {students.map((student, index) => (
+                <MenuItem key={index} onClick={() => handleStudentClick(student)}>
+                  {student}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        </Box>
+       )}
     </Box>
   );
 };

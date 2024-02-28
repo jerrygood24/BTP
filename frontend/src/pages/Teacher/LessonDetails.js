@@ -1,285 +1,238 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import "../../css/Repository.css";
+
 import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Typography,
   List,
   ListItem,
-  Paper,
-  Box,
+  ListItemText,
+  Typography,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  IconButton,
+  Box,
+  Menu,
+  MenuItem,
 } from "@mui/material";
+import IconButton from '@mui/material/IconButton';
+
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddBoxIcon from "@mui/icons-material/AddBox";
-import EditIcon from "@mui/icons-material/Edit";
+import Pano from "../../components/Pano";
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import { ConstructionOutlined } from "@mui/icons-material";
 
 const lessons = [
   {
-    lessonID: 1,
     lessonTitle: "Lesson 1",
     chapters: ["Chapter 1.1", "Chapter 1.2", "Chapter 1.3"],
     date: "2023-11-04",
     time: "09:00 AM",
+    studentsSeen: ["Alice", "Bob", "Charlie"],
   },
   {
-    lessonID: 2,
     lessonTitle: "Lesson 2",
-    chapters: ["Chapter 2.1", "Chapter 2.2", "Chapter 2.3"],
-    date: "2024-01-04",
-    time: "09:50 AM",
+    chapters: ["Chapter 2.1", "Chapter 2.2"],
+    date: "2023-11-05",
+    time: "10:30 AM",
+    studentsSeen: ["David", "Emma"],
   },
   {
-    lessonID: 3,
-    lessonTitle: "Lesson 3",
-    chapters: ["Chapter 3.1", "Chapter 3.2", "Chapter 3.3"],
-    date: "2024-01-05",
-    time: "11:50 AM",
+    lessonTitle: "Lesson 4",
+    chapters: ["Chapter 4.1", "Chapter 4.2", "Chapter 4.3"],
+    date: "2023-11-08",
+    time: "09:45 AM",
+    studentsSeen: ["Helen", "Isaac"],
   },
   {
-    lessonID: 3,
-    lessonTitle: "Lesson 3",
-    chapters: ["Chapter 3.1", "Chapter 3.2", "Chapter 3.3"],
-    date: "2024-01-05",
-    time: "11:50 AM",
+    lessonTitle: "Lesson 5",
+    chapters: ["Chapter 5.1", "Chapter 5.2"],
+    date: "2023-11-09",
+    time: "03:30 PM",
+    studentsSeen: ["Jack", "Karen"],
+  },
+  {
+    lessonTitle: "Lesson 6",
+    chapters: ["Chapter 6.1", "Chapter 6.2", "Chapter 6.3"],
+    date: "2023-11-11",
+    time: "11:20 AM",
+    studentsSeen: ["Liam", "Mia"],
+  },
+  {
+    lessonTitle: "Lesson 7",
+    chapters: ["Chapter 7.1", "Chapter 7.2", "Chapter 7.3", "Chapter 7.4"],
+    date: "2023-11-12",
+    time: "01:45 PM",
+    studentsSeen: ["Nora", "Oliver"],
+  },
+  {
+    lessonTitle: "Lesson 8",
+    chapters: ["Chapter 8.1", "Chapter 8.2"],
+    date: "2023-11-14",
+    time: "10:00 AM",
+    studentsSeen: ["Penny", "Quincy"],
   },
   // Add more lessons here...
 ];
 
-const LessonDetails = () => {
-  const [selectedLesson, setSelectedLesson] = useState(null);
+const LessonDetails = (props) => {
   const [selectedChapter, setSelectedChapter] = useState(null);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [addLessonDialogOpen, setAddLessonDialogOpen] = useState(false);
-  const [addChapterDialogOpen, setAddChapterDialogOpen] = useState(false);
-  const [lessonName, setLessonName] = useState("");
-  const [chapterName, setChapterName] = useState("");
-
-  const handleLessonClick = (lessonIndex) => {
-    setSelectedLesson(lessonIndex);
-    setSelectedChapter(null);
+  const [expandedLesson, setExpandedLesson] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null); // Declare anchorEl and setAnchorEl
+  const [newChapter, setNewChapter] = useState("");
+  const handleAddLesson = () => {
+    // Show a prompt to fill in the lesson title
+    const lessonTitle = window.prompt("Enter Lesson Title:");
+    // console.log(lessonTitle);
+    if (lessonTitle) {
+      // Update the newLesson state with the lesson title
+      const newLesson = {
+        lessonTitle,
+        chapters: [],
+      };
+      console.log(newLesson);
+      props.setLesson([...props.lessonDetails, newLesson]);
+      console.log(props.lessonDetails);
+      // Prompt for adding the first chapter
+      // handleAddChapter();
+    } else {
+      alert("Lesson title cannot be empty.");
+    }
   };
+  const handleAddChapter = () => {
+    if (newChapter) {
 
+      setNewChapter("");
+    } else {
+      alert("Please enter a chapter name.");
+    }
+  };
   const handleChapterClick = (lessonIndex, chapterIndex) => {
-    setSelectedLesson(lessonIndex);
-    setSelectedChapter(chapterIndex);
+    const selectedLesson = lessons[lessonIndex];
+    const selectedChapter = selectedLesson.chapters[chapterIndex];
+    setSelectedChapter({
+      lessonTitle: selectedLesson.lessonTitle,
+      chapterTitle: selectedChapter,
+      date: selectedLesson.date,
+      time: selectedLesson.time,
+      studentsSeen: selectedLesson.studentsSeen,
+    });
+
+    // Set anchorEl to show the students seen menu
+    setAnchorEl(
+      document.getElementById(`students-menu-${lessonIndex}-${chapterIndex}`)
+    );
   };
 
-  const handleEditLessonClick = () => {
-    // Open the edit dialog for lesson name
-    setLessonName(lessons[selectedLesson].lessonTitle);
-    setEditDialogOpen(true);
-  };
-
-  const handleEditChapterClick = () => {
-    // Open the edit dialog for chapter name
-    setChapterName(lessons[selectedLesson].chapters[selectedChapter]);
-    setEditDialogOpen(true);
-  };
-
-  const handleSaveEdit = () => {
-    // Save the changes made in the edit dialog
-    if (selectedLesson !== null) {
-      const updatedLessons = [...lessons];
-      if (selectedChapter !== null) {
-        // Editing a chapter
-        updatedLessons[selectedLesson].chapters[selectedChapter] = chapterName;
-      } else {
-        // Editing a lesson
-        updatedLessons[selectedLesson].lessonTitle = lessonName;
-      }
-      setEditDialogOpen(false);
-    }
-  };
-
-  const handleAddLessonClick = () => {
-    // Open the dialog for adding a new lesson
-    setAddLessonDialogOpen(true);
-  };
-
-  const handleAddChapterClick = (lessonIndex) => {
-    // Open the dialog for adding a new chapter
-    setSelectedLesson(lessonIndex);
-    setAddChapterDialogOpen(true);
-  };
-
-  const handleSaveAddLesson = () => {
-    // Save the new lesson data
-
-    
-  }
-
-
-  const handleSaveAddChapter = () => {
-    // Save the new chapter data
-    if (selectedLesson !== null) {
-      const updatedLessons = [...lessons];
-      updatedLessons[selectedLesson].chapters.push(chapterName);
-      setAddChapterDialogOpen(false);
-    }
-  };
-
-  const handleCancel = () => {
-    // Close the dialogs
-    setEditDialogOpen(false);
-    setAddLessonDialogOpen(false);
-    setAddChapterDialogOpen(false);
+  const closeStudentsMenu = () => {
+    setAnchorEl(null);
   };
 
   return (
-    <Box style={{ display: "flex", margin: "50px", width: "100%" }}>
-      {/* Left Side: Lessons Accordion */}
-      <Box style={{ width: "20%", marginRight: "20px" }}>
-        {lessons.map((lesson, lessonIndex) => (
-          <Accordion
-            key={lessonIndex}
-            expanded={lessonIndex === selectedLesson}
-            onChange={() => handleLessonClick(lessonIndex)}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls={`lesson-${lessonIndex}-content`}
-              id={`lesson-${lessonIndex}-header`}
-            >
-              <Typography>
-                {lesson.lessonTitle}
-                <IconButton onClick={() => handleEditLessonClick()}>
-                  <EditIcon />
-                </IconButton>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <List>
-                {lesson.chapters.map((chapter, chapterIndex) => (
-                  <ListItem
-                    key={chapterIndex}
-                    onClick={() =>
-                      handleChapterClick(lessonIndex, chapterIndex)
-                    }
-                    style={{
-                      backgroundColor:
-                        lessonIndex === selectedLesson &&
-                        chapterIndex === selectedChapter
-                          ? "#b3e0ff" // Highlighted color
-                          : "inherit",
-                    }}
-                  >
-                    {chapter}
-                    <IconButton onClick={() => handleEditChapterClick()}>
-                      <EditIcon />
-                    </IconButton>
-                  </ListItem>
-                ))}
-                <IconButton onClick={() => handleAddChapterClick(lessonIndex)}>
-                  <AddBoxIcon />
-                </IconButton>
-              </List>
-            </AccordionDetails>
-          </Accordion>
-        ))}
-        <Button variant="contained" onClick={() => handleAddLessonClick()}>
-          Add Lesson
-        </Button>
-      </Box>
+    <>
+      <div style={{ display: "flex", margin: "100px" }}>
 
-      {/* Right Side: Lesson Details */}
-      <Box style={{ flex: 1, padding: "20px", width: "60%", backgroundColor: "#DAF7A6" }}>
-        <Typography variant="h6">
-          {selectedLesson !== null ? `${lessons[selectedLesson].lessonTitle}` : ""}
-        </Typography>
-        <Typography variant="subtitle1">
-          {selectedChapter !== null ? `${lessons[selectedLesson].chapters[selectedChapter]}` : ""}
-        </Typography>
-        {selectedLesson !== null && (
-          <Box mt={2}>
-            <Typography variant="body2">
-              Date: {lessons[selectedLesson].date}
-            </Typography>
-            <Typography variant="body2">
-              Time: {lessons[selectedLesson].time}
-            </Typography>
+        <div style={{ width: "15vw" }}>
+          <Box style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+            <Typography >Lessons</Typography>
+            <IconButton sx={{ ml: 1, mr: 1 }} onClick={handleAddLesson}>
+              <AddBoxIcon />
+            </IconButton>
+
           </Box>
-        )}
-      </Box>
 
-      {/* Edit Dialog */}
-      <Dialog open={editDialogOpen} onClose={handleCancel}>
-        <DialogTitle>Edit Details</DialogTitle>
-        <DialogContent>
-          {selectedChapter !== null ? (
-            <TextField
-              label="Chapter Name"
-              value={chapterName}
-              onChange={(e) => setChapterName(e.target.value)}
-              fullWidth
-            />
+          {props.lessonDetails.map((lesson, lessonIndex) => (
+            <Accordion
+              key={lessonIndex}
+              expanded={lessonIndex === expandedLesson}
+              onChange={() =>
+                setExpandedLesson(
+                  lessonIndex === expandedLesson ? null : lessonIndex
+                )
+              }
+            >
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`lesson-${lessonIndex}-content`}
+                id={`lesson-${lessonIndex}-header`}
+              >
+                <Typography>{lesson.lessonTitle}</Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <List>
+                  {lesson.chapters.map((chapter, chapterIndex) => (
+                    <ListItem
+                      key={chapterIndex}
+                      onClick={() =>
+                        handleChapterClick(lessonIndex, chapterIndex)
+                      }
+                    >
+                      <Button variant="contained" onClick={(e) => setAnchorEl(e.currentTarget)}>
+                        {chapter}
+                      </Button>
+                    </ListItem>
+                  ))}
+                </List>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div>
+        <Box
+          style={{
+            flex: 1,
+            border: "1px solid black",
+            padding: "20px",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+
+          {selectedChapter ? (
+            <>
+              <Box className="info"
+                style={{ display: "flex", flexDirection: "row" }}
+              >
+                {console.log(selectedChapter)}
+                <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
+                  {selectedChapter.lessonTitle}
+                </Typography>
+                <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
+                  {selectedChapter.chapterTitle}
+                </Typography>
+                <Typography variant="h6" sx={{ ml: 1, mr: 1 }} >
+                  {selectedChapter.date}
+                </Typography>
+                <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
+                  {selectedChapter.time}
+                </Typography>
+                <Button
+                  id="students-menu"
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
+                >
+                  Students Seen
+                </Button>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={closeStudentsMenu}
+                >
+                  {selectedChapter.studentsSeen.map((student, index) => (
+                    <MenuItem key={index}>{student}</MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+              <div className="pano-container">
+                <div className="pano-box">
+                  {/* <Pano /> */}
+                </div>
+              </div>
+            </>
           ) : (
-            <TextField
-              label="Lesson Name"
-              value={lessonName}
-              onChange={(e) => setLessonName(e.target.value)}
-              fullWidth
-            />
+            <Typography variant="h6">Select a Chapter!</Typography>
           )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveEdit} color="primary" variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Add Lesson Dialog */}
-      <Dialog open={addLessonDialogOpen} onClose={handleCancel}>
-        <DialogTitle>Add Lesson</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Lesson Name"
-            value={lessonName}
-            onChange={(e) => setLessonName(e.target.value)}
-            fullWidth
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveAddLesson} color="primary" variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Add Chapter Dialog */}
-      <Dialog open={addChapterDialogOpen} onClose={handleCancel}>
-        <DialogTitle>Add Chapter</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Chapter Name"
-            value={chapterName}
-            onChange={(e) => setChapterName(e.target.value)}
-            fullWidth
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCancel} color="primary">
-            Cancel
-          </Button>
-          <Button onClick={handleSaveAddChapter} color="primary" variant="contained">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+        </Box>
+      </div>
+    </>
   );
 };
 
