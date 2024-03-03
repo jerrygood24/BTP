@@ -1,18 +1,27 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
 import { Box, Button } from "@mui/material";
+import Modal from 'react-modal';
 
+Modal.setAppElement('#root');
 const Pano = () => {
   const [viewer, setViewer] = useState(null);
   const [scenes, setScenes] = useState([]);
   const [scenesReady, setScenesReady] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  // const [modalContent, setModalContent] = useState({ type: '', url: '' });
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState("");
+  const [selectedAudioUrl, setSelectedAudioUrl] = useState("");
+  const audioPlayer = useRef(new Audio());
+  
+
   const fetchScenesAndHotspots = async () => {
     try {
       const scenesResponse = await fetch('http://127.0.0.1:8000/accounts/scenes/');
       const scenesData = await scenesResponse.json();
       for (const scene of scenesData) {
-        console.log(`Fetching hotspots for scene: ${scene.id}`); 
+        console.log(`Fetching hotspots for scene: ${scene.id}`);
         const hotspotsResponse = await fetch(`http://127.0.0.1:8000/accounts/hotspots/?scene=${scene.id}`);
         const hotspotsData = await hotspotsResponse.json();
         scene.hotspots = hotspotsData;
@@ -20,6 +29,14 @@ const Pano = () => {
       }
       setScenes(scenesData);
       setScenesReady(true);
+      setViewer(prevViewer => {
+        if (!prevViewer) {
+          const panoElement = document.getElementById("pano");
+          const viewerOpts = { controls: { mouseViewMode: "drag" } };
+          return new Marzipano.Viewer(panoElement, viewerOpts);
+        }
+        return prevViewer;
+      });
       // console.log("Scenes Added: ", scenesData);
     } catch (error) {
       // console.error('Error fetching scenes and hotspots:', error);
@@ -43,7 +60,10 @@ const Pano = () => {
       // fetchScenesAndHotspots();
     }
   }, []);
-
+  const openModal = (videoUrl) => {
+    setSelectedVideoUrl(videoUrl);
+    setModalIsOpen(true);
+  };
   useEffect(() => {
     if (viewer && scenesReady) {
       // console.log('First scene:', scenes[0]);
@@ -68,28 +88,79 @@ const Pano = () => {
         sceneData.hotspots.forEach(hotspot => {
           var element = document.createElement('div');
           element.classList.add('hotspot');
-          element.innerText = hotspot.text;
+          var textElement = document.createElement('span');
+          textElement.innerText = hotspot.text;
+          element.appendChild(textElement);
+          if (hotspot.video_url) {
+            var linkElement = document.createElement('a');
+            linkElement.href = '#';
+            linkElement.innerText = ' View Video'; // Text for the link
+            linkElement.onclick = (e) => {
+              e.preventDefault(); // Prevent the link from navigating
+              setSelectedVideoUrl(hotspot.video_url);
+              setModalIsOpen(true);
+            };
+            element.appendChild(linkElement);
+          }
+          if (hotspot.audio) {
+            console.log("Audio file is there in gian ho app ");
+            var audioLink = document.createElement('a');
+            audioLink.href = '#';
+            audioLink.innerText = ' Play/Pause Audio';
+            audioLink.onclick = (e) => {
+              e.preventDefault();
+              // Assuming `hotspot.audio_file` is the URL to the audio file
+          //     var audio = new Audio(hotspot.audio);
+          //     audio.play();
+          //   };
+          //   element.appendChild(audioLink);
+          // }
+          if (audioPlayer.current.src !== hotspot.audio) {
+            audioPlayer.current.src = hotspot.audio;
+            audioPlayer.current.play();
+          } else if (audioPlayer.current.paused) {
+            audioPlayer.current.play();
+          } else {
+            audioPlayer.current.pause();
+          }
+        };
+        element.appendChild(audioLink);
+      }
           marzipanoScene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
         });
         return { ...sceneData, scene: marzipanoScene };
       });
       // console.log('New scenes with Marzipano scenes:', newScenes);
       setScenes(newScenes);
-      
+
       setScenesReady(false);
       newScenes[0].scene.switchTo();
 
     }
     else {
-      if(!viewer){
+      if (!viewer) {
         console.log('No viewer available');
       }
-      else{
-        console.log("Viewer is there: ",viewer);
+      else {
+        console.log("Viewer is there: ", viewer);
         console.log('No Scenes available');
+      }
     }
-  }
-  }, [viewer,scenesReady]);
+  }, [viewer, scenesReady]);
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+
+  // Function to determine if the URL is a YouTube link
+  const isYouTubeLink = (url) => {
+    const pattern = /^(https?:\/\/)?(www\.)?(youtube.com|youtu.be)\/.+$/;
+    return pattern.test(url);
+  };
+  const getYouTubeId = (url) => {
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[7].length === 11) ? match[7] : null;
+  };
   const switchScene = (sceneId) => {
     // console.log('Attempting to switch scene. Available scenes:', scenes);
     // console.log('Trying to switch to scene ID:', sceneId);
@@ -110,6 +181,7 @@ const Pano = () => {
   useEffect(() => {
     fetchScenesAndHotspots();
   }, []);
+
   return (
     <>
       <div id="pano" style={{ width: '100%', height: '500px' }}></div>
@@ -134,25 +206,56 @@ const Pano = () => {
           })}
         </Box>
       )} */}
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={closeModal}
+        contentLabel="Video Modal"
+        style={{
+          overlay: {
+            backgroundColor: 'rgba(255, 255, 255, 0.75)' // You can adjust the opacity here
+          },
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: '1000' // Ensure this is higher than other content but the background image is still visible
+          }
+        }}
+      >
+        {isYouTubeLink(selectedVideoUrl) ? (
+          <iframe
+            width="560"
+            height="315"
+            src={`https://www.youtube.com/embed/${getYouTubeId(selectedVideoUrl)}`}
+            frameBorder="0"
+            allowFullScreen
+          ></iframe>
+        ) : (
+          <p>This video link is not a YouTube link. <a href={selectedVideoUrl} target="_blank" rel="noopener noreferrer">Click here</a> to view.</p>
+        )}
+      </Modal>
       <div id="pano" style={{ width: '100%', height: '500px' }}></div>
-    <div className="button-container">
-      {scenes.length === 0 ? (
-        <p>Loading scenes...</p>
-      ) : (
-        scenes.map((scene) => {
-          const sceneId = String(scene.id);
-          return (
-            <button
-              key={sceneId}
-              onClick={() => switchScene(sceneId)}
-              className="button"
-            >
-              {sceneId.charAt(0).toUpperCase() + sceneId.slice(1)}
-            </button>
-          );
-        })
-      )}
-    </div>
+      <div className="button-container">
+        {scenes.length === 0 ? (
+          <p>Loading scenes...</p>
+        ) : (
+          scenes.map((scene) => {
+            const sceneId = String(scene.id);
+            return (
+              <button
+                key={sceneId}
+                onClick={() => switchScene(sceneId)}
+                className="button"
+              >
+                {sceneId.charAt(0).toUpperCase() + sceneId.slice(1)}
+              </button>
+            );
+          })
+        )}
+      </div>
     </>
   );
 };
