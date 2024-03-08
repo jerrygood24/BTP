@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Home', 'Repository', 'About', 'Contact','FileUpload'];
+const pages = ['Home', 'Repository', 'About', 'Contact', 'FileUpload'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -140,6 +140,18 @@ function ResponsiveAppBar() {
                 </MenuItem>
               </Button>
             ))}
+            <Button
+              onClick={() => navigate('/teacherdashboard')}
+              sx={{ my: 2, color: 'white' }}
+            >
+              <Typography textAlign="center">Teacher</Typography>
+            </Button>
+            <Button
+              onClick={() => navigate('/studentdashboard')}
+              sx={{ my: 2, color: 'white' }}
+            >
+              <Typography textAlign="center">Student</Typography>
+            </Button>
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
@@ -173,13 +185,19 @@ function ResponsiveAppBar() {
                     </MenuItem>
                   ))}
                 </Menu>
+
+
+
+
               </>
             ) : (
               // Show login and signup buttons if not authenticated
+
+
               <Box display="flex" alignItems="center">
                 <Button
                   onClick={() => navigate('/login')}
-                  sx={{ my: 2, mr:2, color: 'white' }}
+                  sx={{ my: 2, mr: 2, color: 'white' }}
                 >
                   <Typography textAlign="center">Login</Typography>
                 </Button>
@@ -189,6 +207,7 @@ function ResponsiveAppBar() {
                 >
                   <Typography textAlign="center">Signup</Typography>
                 </Button>
+
               </Box>
             )}
           </Box>
