@@ -29,12 +29,12 @@ function FileUpload({ setImageUrl }) {
       const formData = new FormData();
       formData.append('image', selectedFile);
       formData.append('name', name);
-
-
+      const token = localStorage.getItem('access_token');
+      console.log(token); 
         axios.post('http://127.0.0.1:8000/accounts/imageQuery/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
-            // 'Authorization': `Bearer ${authToken}`,
+            'Authorization': `Bearer ${token}`,
           },
         })
         .then((response) => {

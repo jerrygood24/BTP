@@ -47,7 +47,17 @@ export default function SignIn() {
 
       if (response.status === 200) {
         setIsLoggedIn(true);
-        console.log("login success")
+        //set the access_token in the localstorage
+        // response.json().then(data => {
+        //   const token = data.access;
+        //   localStorage.setItem('authToken', token);
+        // });
+        // setAccessToken(response.data['Token']);
+        // const accessToken = response.data.access_token;
+        // localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('access_token', response.data.access);
+        // console.log(response.data);
+        return (<div> DON DON DON</div>);
         // response.json().then(data => {
         //   const token = data.access;
         //   localStorage.setItem('authToken', token);

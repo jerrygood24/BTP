@@ -33,8 +33,8 @@ function SignUp() {
       });
 
       if (response.status === 200) {
-        localStorage.setItem('authToken', data.access)
-        console.log("signup success")
+        localStorage.setItem('access_token', response.data.access_token);
+        console.log("Successfull signup ",response.data);
         return (<div> Don DON Don</div>);
       }
       else {
