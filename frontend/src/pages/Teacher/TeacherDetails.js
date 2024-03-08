@@ -19,7 +19,7 @@ import axios from "axios";
 const TeacherDetails = (props) => {
   const initialData = {
     profilePicture: "img/profile.png",
-    name: "Akshat Jha",
+    name: "Aditya Rathore",
     organizationname: "IIT Kharagpur",
     subject: ['Mathematics', 'English', 'Science', 'Hindi'],
   };
@@ -33,8 +33,8 @@ const TeacherDetails = (props) => {
   const [subjectMenuAnchor, setSubjectMenuAnchor] = useState(null);
   const [studentsmenuanchor, setStudentsmenuanchor] = useState(null);
   const [subhead, setsubhead] = useState("Subjects");
-  const [students, setStudents] = useState(['Klaus','Ella D Verma','Stefen','Louis']);
-  const [subject_selected,setsubject_selected]=useState(false);
+  const [students, setStudents] = useState(['Klaus', 'Ella D Verma', 'Stefen', 'Louis']);
+  const [subject_selected, setsubject_selected] = useState(false);
   const handleSubjectClick = (subject) => {
     setSubjectMenuAnchor(null);
     setsubhead(subject);
@@ -43,7 +43,7 @@ const TeacherDetails = (props) => {
     // handleEditClick("Subject");
   };
   const handleStudentClick = (subject) => {
-    
+
     //open student dashboard
   };
 
@@ -91,7 +91,7 @@ const TeacherDetails = (props) => {
 
         <Box display={"flex"} direction={"row"} alignItems="center" justifyContent={"space-between"}>
           <Box>
-            <Typography onClick={(e) =>{ setSubjectMenuAnchor(e.currentTarget)}}>
+            <Typography onClick={(e) => { setSubjectMenuAnchor(e.currentTarget) }}>
               {subhead} <ExpandMoreIcon />
             </Typography>
             <Menu
@@ -133,25 +133,25 @@ const TeacherDetails = (props) => {
           </DialogActions>
         </Dialog>
       )}
-       {subject_selected && (<Box display={"flex"} direction={"row"} alignItems="center" justifyContent={"space-between"}>
-          <Box>
-            <Typography onClick={(e) => setStudentsmenuanchor(e.currentTarget)}>
-              Students <ExpandMoreIcon />
-            </Typography>
-            <Menu
-              anchorEl={studentsmenuanchor}
-              open={Boolean(studentsmenuanchor)}
-              onClose={() => setStudentsmenuanchor(null)}
-            >
-              {students.map((student, index) => (
-                <MenuItem key={index} onClick={() => handleStudentClick(student)}>
-                  {student}
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+      {subject_selected && (<Box display={"flex"} direction={"row"} alignItems="center" justifyContent={"space-between"}>
+        <Box>
+          <Typography onClick={(e) => setStudentsmenuanchor(e.currentTarget)}>
+            Students <ExpandMoreIcon />
+          </Typography>
+          <Menu
+            anchorEl={studentsmenuanchor}
+            open={Boolean(studentsmenuanchor)}
+            onClose={() => setStudentsmenuanchor(null)}
+          >
+            {students.map((student, index) => (
+              <MenuItem key={index} onClick={() => handleStudentClick(student)}>
+                {student}
+              </MenuItem>
+            ))}
+          </Menu>
         </Box>
-       )}
+      </Box>
+      )}
     </Box>
   );
 };

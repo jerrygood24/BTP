@@ -99,6 +99,7 @@ const TeacherDashboard = () => {
     <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
       <TeacherDetails onSubjectSelect={fetchLessonDetailsForSubject} />
       <LessonDetails lessonDetails={lessonDetails} setLesson={setLessonDetails} />
+      
     </Box>
   
   );

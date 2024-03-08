@@ -15,7 +15,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
-
+import QuizDialog from "./Quiz";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -78,7 +78,37 @@ const LessonDetails = (props) => {
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [expandedLesson, setExpandedLesson] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null); // Declare anchorEl and setAnchorEl
-  const [newChapter, setNewChapter] = useState("");
+  // const [newChapter, setNewChapter] = useState("");
+  const [isAddSubChapterDialogOpen, setIsAddSubChapterDialogOpen] = useState(false);
+  const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
+
+  const handleAddQuiz = () => {
+    setIsAddQuizDialogOpen(true);
+  };
+
+  const handleCloseAddQuizDialog = () => {
+    setIsAddQuizDialogOpen(false);
+  };
+
+  const handleAddQuizSubmit = (quizData) => {
+    // Implement logic to add the quiz data to the lesson
+    // You can access the lesson details using props.lessonDetails
+    // Update the lesson details with the new quiz data
+    // Close the dialog
+    console.log(quizData);
+  };
+
+  const handleAddChapter = (lessonIndex) => {
+    let newChapter = window.prompt("Enter Lesson Title:");
+    if (newChapter) {
+      const updatedLessons = [...props.lessonDetails];
+      updatedLessons[lessonIndex].chapters.push(newChapter);
+      props.setLesson(updatedLessons);
+      newChapter = "";
+    } else {
+      alert("Please enter a chapter name.");
+    }
+  };
   const handleAddLesson = () => {
     // Show a prompt to fill in the lesson title
     const lessonTitle = window.prompt("Enter Lesson Title:");
@@ -98,14 +128,7 @@ const LessonDetails = (props) => {
       alert("Lesson title cannot be empty.");
     }
   };
-  const handleAddChapter = () => {
-    if (newChapter) {
 
-      setNewChapter("");
-    } else {
-      alert("Please enter a chapter name.");
-    }
-  };
   const handleChapterClick = (lessonIndex, chapterIndex) => {
     const selectedLesson = lessons[lessonIndex];
     const selectedChapter = selectedLesson.chapters[chapterIndex];
@@ -173,6 +196,9 @@ const LessonDetails = (props) => {
                     </ListItem>
                   ))}
                 </List>
+                <Button variant="outlined" onClick={() => handleAddChapter(lessonIndex)}>Add Chapter</Button>
+                <Button variant="outlined"  onClick={handleAddQuiz}>Add Quiz</Button>
+                <QuizDialog isOpen={isAddQuizDialogOpen} onClose={handleCloseAddQuizDialog} onAddQuiz={handleAddQuizSubmit} />
               </AccordionDetails>
             </Accordion>
           ))}
@@ -231,6 +257,7 @@ const LessonDetails = (props) => {
             <Typography variant="h6">Select a Chapter!</Typography>
           )}
         </Box>
+        
       </div>
     </>
   );
