@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
-import { Box, Button } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
@@ -14,7 +14,21 @@ const Pano = () => {
   const [selectedVideoUrl, setSelectedVideoUrl] = useState("");
   const [selectedAudioUrl, setSelectedAudioUrl] = useState("");
   const audioPlayer = useRef(new Audio());
-  
+  const [hotspotAddModalIsOpen, setHotspotAddModalIsOpen] = useState(false);
+  const [hotspotDetails, setHotspotDetails] = useState({
+    id: '',
+    text: '',
+    video_url: '',
+    audio: null,
+    yaw: 0,
+    pitch: 0,
+  });
+  const audioInputRef = useRef(null);
+  const [currentSceneId, setCurrentSceneId] = useState(null);
+  const [isAddHotspotMode, setIsAddHotspotMode] = useState(false);
+  const setCurrentScene = (sceneId) => {
+    setCurrentSceneId(sceneId);
+  };
 
   const fetchScenesAndHotspots = async () => {
     try {
@@ -25,9 +39,14 @@ const Pano = () => {
         const hotspotsResponse = await fetch(`http://127.0.0.1:8000/accounts/hotspots/?scene=${scene.id}`);
         const hotspotsData = await hotspotsResponse.json();
         scene.hotspots = hotspotsData;
-        console.log(scene.hotspots);
+        // console.log("got the hotspots for scene id",scene.id);
+        // console.log(scene.hotspots);
       }
       setScenes(scenesData);
+      if (scenesData.length > 0) {
+        setCurrentSceneId(scenesData[0].id);
+        console.log("The scene id is ",scenesData[0].id);
+      }
       setScenesReady(true);
       setViewer(prevViewer => {
         if (!prevViewer) {
@@ -109,23 +128,22 @@ const Pano = () => {
             audioLink.innerText = ' Play/Pause Audio';
             audioLink.onclick = (e) => {
               e.preventDefault();
-              // Assuming `hotspot.audio_file` is the URL to the audio file
-          //     var audio = new Audio(hotspot.audio);
-          //     audio.play();
-          //   };
-          //   element.appendChild(audioLink);
-          // }
-          if (audioPlayer.current.src !== hotspot.audio) {
-            audioPlayer.current.src = hotspot.audio;
-            audioPlayer.current.play();
-          } else if (audioPlayer.current.paused) {
-            audioPlayer.current.play();
-          } else {
-            audioPlayer.current.pause();
+              //     var audio = new Audio(hotspot.audio);
+              //     audio.play();
+              //   };
+              //   element.appendChild(audioLink);
+              // }
+              if (audioPlayer.current.src !== hotspot.audio) {
+                audioPlayer.current.src = hotspot.audio;
+                audioPlayer.current.play();
+              } else if (audioPlayer.current.paused) {
+                audioPlayer.current.play();
+              } else {
+                audioPlayer.current.pause();
+              }
+            };
+            element.appendChild(audioLink);
           }
-        };
-        element.appendChild(audioLink);
-      }
           marzipanoScene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
         });
         return { ...sceneData, scene: marzipanoScene };
@@ -172,8 +190,10 @@ const Pano = () => {
     // console.log('Switching to scene:', sceneToSwitch);
     // console.log('Switching to scene:', sceneToSwitch.scene);
     if (sceneToSwitch && sceneToSwitch.scene) {
-      // console.log('Found scene, switching...', sceneToSwitch);
+      console.log('Found scene, switching...', sceneToSwitch);
+      setCurrentSceneId(sceneToSwitch.id);
       sceneToSwitch.scene.switchTo();
+      console.log("The current scene id is ",currentSceneId);
     } else {
       console.error('Scene to switch to was not found or is not initialized correctly');
     }
@@ -182,8 +202,122 @@ const Pano = () => {
     fetchScenesAndHotspots();
   }, []);
 
+
+  const toggleAddHotspotMode = () => {
+    setIsAddHotspotMode(!isAddHotspotMode);
+    console.log("Toggling Add Hotspot Mode:", !isAddHotspotMode);
+  };
+
+  const closeHotspotAddModal = () => {
+    setHotspotAddModalIsOpen(false);
+    if (isAddHotspotMode) {
+      setIsAddHotspotMode(false); // Ensure we exit Add Hotspot Mode when closing the modal
+    }
+  };
+  const handlePanoramaClick = (e) => {
+    if (!isAddHotspotMode || !viewer) return;
+    console.log("In Add Hotspot Mode, capturing click");
+    e.preventDefault();
+    e.stopPropagation();
+    const panoElement = document.getElementById("pano");
+    const rect = panoElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    console.log(`Click coordinates: x=${x}, y=${y}`);
+    const view = viewer.view();
+    const coordinates = view.screenToCoordinates({ x, y });
+    console.log(`Marzipano coordinates: yaw=${coordinates.yaw}, pitch=${coordinates.pitch}`);
+    setHotspotDetails((prevDetails) => ({
+      ...prevDetails,
+      yaw: coordinates.yaw,
+      pitch: coordinates.pitch,
+    }));
+    console.log("Opening Add Hotspot Modal");
+    setHotspotAddModalIsOpen(true);
+    const openHotspotAddModal = () => {
+      if (!isAddHotspotMode) return; // Only open if in add hotspot mode
+      setHotspotAddModalIsOpen(true);
+    };
+  };
+  useEffect(() => {
+    const panoElement = document.getElementById("pano");
+    console.log("Updating click event listener for Add Hotspot Mode:", isAddHotspotMode);
+    if (!panoElement) return;
+    //   const eventHandler = isAddHotspotMode ? handlePanoramaClick : null;
+    //   if (eventHandler) {
+    //     panoElement.addEventListener('click', eventHandler);
+    //   } else {
+    //     panoElement.removeEventListener('click', handlePanoramaClick);
+    //   }
+
+    //   return () => panoElement.removeEventListener('click', handlePanoramaClick);
+    // }, [isAddHotspotMode, viewer]);
+    if (isAddHotspotMode) {
+      panoElement.addEventListener('click', handlePanoramaClick);
+    } else {
+      panoElement.removeEventListener('click', handlePanoramaClick);
+    }
+
+    return () => panoElement.removeEventListener('click', handlePanoramaClick);
+  }, [isAddHotspotMode, viewer, hotspotDetails]);
+
+  const handleHotspotDetailChange = (e) => {
+    const { name, value, files } = e.target;
+    if (name === 'audio') {
+      setHotspotDetails((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setHotspotDetails((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleSubmitHotspot = async (e) => {
+    e.preventDefault();
+    console.log("Submitting hotspot details", hotspotDetails);
+    const formData = new FormData();
+    formData.append("text", hotspotDetails.text);
+    formData.append("video_url", hotspotDetails.video_url);
+    formData.append("yaw", hotspotDetails.yaw);
+    formData.append("pitch", hotspotDetails.pitch);
+    formData.append("scene", currentSceneId);
+    formData.append("id", hotspotDetails.id);
+
+    if (hotspotDetails.audio) {
+      formData.append("audio", hotspotDetails.audio);
+    }
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/accounts/hotspots/", {
+        method: "POST",
+        body: formData,
+        // If your endpoint requires headers like Authorization, include them here
+      });
+
+      if (response.ok) {
+        console.log("Hotspot added successfully");
+        closeHotspotAddModal();
+        // Optionally: fetch scenes again to update the UI with the new hotspot
+      } else {
+        console.error("Failed to add hotspot. Server responded with an error.");
+      }
+    } catch (error) {
+      console.error("Failed to add hotspot due to a network error or cross-origin issue.", error);
+    }
+    console.log("Submitting hotspot:", hotspotDetails);
+    setHotspotAddModalIsOpen(false);
+    setIsAddHotspotMode(false);
+    closeHotspotAddModal();
+  };
+
+  useEffect(() => {
+    fetchScenesAndHotspots();
+  }, []);
+
+
   return (
     <>
+      <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
+        {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
+      </Button>
       <div id="pano" style={{ width: '100%', height: '500px' }}></div>
       {/* {scenes.length === 0 ? (
         <p>Loading scenes...</p>
@@ -237,6 +371,51 @@ const Pano = () => {
           <p>This video link is not a YouTube link. <a href={selectedVideoUrl} target="_blank" rel="noopener noreferrer">Click here</a> to view.</p>
         )}
       </Modal>
+      <Modal
+        isOpen={hotspotAddModalIsOpen}
+        onRequestClose={() => setHotspotAddModalIsOpen(false)}
+        style={modalStyle}
+      >
+        <Box component="form" onSubmit={handleSubmitHotspot}>
+          <Typography variant="h6">Add New Hotspot</Typography>
+          <TextField
+            margin="normal"
+            fullWidth
+            label="ID"
+            name="id"
+            value={hotspotDetails.id}
+            onChange={handleHotspotDetailChange}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Text"
+            name="text"
+            value={hotspotDetails.text}
+            onChange={handleHotspotDetailChange}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            label="Video URL"
+            name="video_url"
+            value={hotspotDetails.video_url}
+            onChange={handleHotspotDetailChange}
+          />
+          <input
+            accept="audio/*"
+            type="file"
+            id="audio"
+            name="audio"
+            style={{ display: 'block', marginTop: '20px' }}
+            onChange={handleHotspotDetailChange}
+            ref={audioInputRef}
+          />
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
+            Submit Hotspot
+          </Button>
+        </Box>
+      </Modal>
       <div id="pano" style={{ width: '100%', height: '500px' }}></div>
       <div className="button-container">
         {scenes.length === 0 ? (
@@ -247,7 +426,7 @@ const Pano = () => {
             return (
               <button
                 key={sceneId}
-                onClick={() => switchScene(sceneId)}
+                onClick={() => [switchScene(sceneId), setCurrentScene(sceneId)]}
                 className="button"
               >
                 {sceneId.charAt(0).toUpperCase() + sceneId.slice(1)}
@@ -258,6 +437,18 @@ const Pano = () => {
       </div>
     </>
   );
+};
+
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
 };
 
 export default Pano;
