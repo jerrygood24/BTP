@@ -6,13 +6,16 @@ import axios from 'axios';
 import axiosInstance from '../utils/api';
 
 
-function FileUpload({ setImageUrl }) {
+function FileUpload() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [name,setName] = useState("")
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
     setName(e.target.files[0].name);
   };
+  // const handleNameChange = (e) => {
+  //   setName(e.target.value);
+  // };
   const handleDrop = (e) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
@@ -39,12 +42,6 @@ function FileUpload({ setImageUrl }) {
         })
         .then((response) => {
           console.log('File uploaded successfully:', response.data);
-          if (typeof setImageUrl === 'function') {
-            setImageUrl(response.data.image);
-          } else {
-            console.error('setImageUrl is not a function');
-            updateImageUrlDirectly(response.data.image)
-          }
 
         })
         .catch((error) => {
@@ -53,9 +50,6 @@ function FileUpload({ setImageUrl }) {
  
     
     }
-    const updateImageUrlDirectly = (newImageUrl) => {
-      console.log('Updated imageUrl directly in Repository:', newImageUrl);
-  };
   };
 
   return (
