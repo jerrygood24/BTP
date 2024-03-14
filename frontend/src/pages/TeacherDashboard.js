@@ -8,6 +8,7 @@ import axios from "axios";
 const TeacherDashboard = () => {
   const [lessonDetails, setLessonDetails] = useState([]);
   const [teacherId, setTeacherId] = useState(null);
+  const accessToken = localStorage.getItem("access_token");
     useEffect(() => {
 
       const storedTeacherId = localStorage.getItem("teacher_id");
@@ -20,16 +21,27 @@ const TeacherDashboard = () => {
       if (teacherId) {
         fetchLessonDetails();
       }
+      else{
+        setLessonDetails([]);
+      }
     }, [teacherId]);
 
   const fetchLessonDetails = async () => {
     try {
-      const lessonsResponse = await axios.get(`http://127.0.0.1:8000/accounts/lessons/?teacher=${teacherId}`);
+      const lessonsResponse = await axios.get(`http://127.0.0.1:8000/accounts/lessons/?teacher=${teacherId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
       const lessonData = lessonsResponse.data;
       console.log(lessonData);
       const lessonsWithChapters = await Promise.all(lessonData.map(async (lesson) => {
         console.log("lesson:", lesson);
-        const chaptersResponse = await axios.get(`http://127.0.0.1:8000/accounts/subchapters/?lesson=${lesson.id}`);
+        const chaptersResponse = await axios.get(`http://127.0.0.1:8000/accounts/subchapters/?lesson=${lesson.id}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
         return { ...lesson, chapters: chaptersResponse.data };
       }));
       setLessonDetails(lessonsWithChapters);

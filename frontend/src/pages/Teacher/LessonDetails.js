@@ -35,13 +35,20 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
   };
 
   const handleAddChapter = async (lessonIndex) => {
+    console.log("lessonIndex", lessonIndex);
     try {
+      const accessToken = localStorage.getItem('access_token');
       const lessonId = lessonDetails[lessonIndex].id;
+      console.log("lessonId", lessonId);
       const newChapterTitle = prompt("Enter Chapter Title:");
       if (newChapterTitle) {
         const response = await axios.post("http://127.0.0.1:8000/accounts/subchapters/", {
           lesson: lessonId,
-          chapter_title: newChapterTitle,
+          title: newChapterTitle,
+        },{
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
         const updatedLessonDetails = [...lessonDetails];
         updatedLessonDetails[lessonIndex].chapters.push(response.data);
@@ -56,6 +63,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
 
   const handleAddLesson = async () => {
     try {
+      const accessToken = localStorage.getItem('access_token');
       const newLessonTitle = prompt("Enter Lesson Title:");
       // console.log("teacher id:", localStorage.getItem("teacher_id"));
       // console.log(newLessonTitle);
@@ -63,6 +71,10 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
         const response = await axios.post("http://127.0.0.1:8000/accounts/lessons/", {
           teacher: localStorage.getItem("teacher_id"),
           title: newLessonTitle,
+        }, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         });
         console.log("response:", response.data);
         setLessonDetails([...lessonDetails, response.data]);
@@ -77,12 +89,13 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
   const handleChapterClick = (lessonIndex, chapterIndex) => {
     const selectedLesson = lessonDetails[lessonIndex];
     const selectedChapter = selectedLesson.chapters[chapterIndex];
+    console.log('Lesson Index:', lessonIndex);
+  console.log('Chapter Index:', chapterIndex);
+  console.log('Selected Lesson:', lessonDetails[lessonIndex]);
+  console.log('Selected Chapter:', lessonDetails[lessonIndex]?.chapters[chapterIndex]);
     setSelectedChapter({
-      lessonTitle: selectedLesson.lessonTitle,
-      chapterTitle: selectedChapter.chapterTitle,
-      date: selectedLesson.date,
-      time: selectedLesson.time,
-      studentsSeen: selectedLesson.studentsSeen,
+      lessonTitle: selectedLesson.title,
+      chapterTitle: selectedChapter.title, 
     });
 
     // Set anchorEl to show the students seen menu
@@ -105,7 +118,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
               <AddBoxIcon />
             </IconButton>
           </Box>
-
+  
           {lessonDetails && lessonDetails.map((lesson, lessonIndex) => (
             <Accordion
               key={lessonIndex}
@@ -121,9 +134,9 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
                 aria-controls={`lesson-${lessonIndex}-content`}
                 id={`lesson-${lessonIndex}-header`}
               >
-                <Typography>{lesson.lesson_title}</Typography>
+                <Typography>{lesson.title}</Typography>
               </AccordionSummary>
-
+  
               <AccordionDetails>
                 <List>
                   {lesson.chapters && lesson.chapters.map((chapter, chapterIndex) => (
@@ -134,7 +147,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
                       }
                     >
                       <Button variant="contained">
-                        {chapter.chapter_title}
+                        {chapter.title}
                       </Button>
                     </ListItem>
                   ))}
@@ -155,7 +168,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
             alignItems: "center",
           }}
         >
-
+  
           {selectedChapter ? (
             <>
               <Box className="info" style={{ display: "flex", flexDirection: "row" }}>
@@ -165,20 +178,6 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
                 <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
                   {selectedChapter.chapterTitle}
                 </Typography>
-                <Typography variant="h6" sx={{ ml: 1, mr: 1 }} >
-                  {selectedChapter.date}
-                </Typography>
-                <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
-                  {selectedChapter.time}
-                </Typography>
-                <Button id="students-menu" onClick={(e) => setAnchorEl(e.currentTarget)}>
-                  Students Seen
-                </Button>
-                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={closeStudentsMenu}>
-                  {selectedChapter.studentsSeen.map((student, index) => (
-                    <MenuItem key={index}>{student}</MenuItem>
-                  ))}
-                </Menu>
               </Box>
               <div className="pano-container">
                 <div className="pano-box">
@@ -193,6 +192,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
       </div>
     </>
   );
+  
 };
 
 export default LessonDetails;
