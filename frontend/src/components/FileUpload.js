@@ -6,7 +6,7 @@ import axios from 'axios';
 import axiosInstance from '../utils/api';
 
 
-function FileUpload() {
+function FileUpload({ subchapterId }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [name,setName] = useState("")
   const handleFileChange = (e) => {
@@ -32,6 +32,7 @@ function FileUpload() {
       const formData = new FormData();
       formData.append('image', selectedFile);
       formData.append('name', name);
+      formData.append('subchapter', subchapterId);
       const token = localStorage.getItem('access_token');
       console.log(token); 
         axios.post('http://127.0.0.1:8000/accounts/imageQuery/', formData, {

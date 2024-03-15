@@ -56,7 +56,7 @@ export default function SignIn() {
         // const accessToken = response.data.access_token;
         // localStorage.setItem('access_token', accessToken);
         localStorage.setItem('access_token', response.data.access);
-        // console.log(response.data);
+        console.log(response.data);
         return (<div> DON DON DON</div>);
         // response.json().then(data => {
         //   const token = data.access;
