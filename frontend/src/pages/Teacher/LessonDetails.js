@@ -20,7 +20,7 @@ import QuizDialog from "./Quiz";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import axios from "axios";
-
+const isTeacher = true;
 const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [expandedLesson, setExpandedLesson] = useState(null);
@@ -185,7 +185,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
               <FileUpload subchapterId={subchapterId} />
               <div className="pano-container">
                 <div className="pano-box">
-                <Pano subchapterId={subchapterId} />
+                <Pano subchapterId={subchapterId} isTeacher={isTeacher} />
                 </div>
               </div>
             </>

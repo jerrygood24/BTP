@@ -5,7 +5,7 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
-const Pano = ({ subchapterId }) => {
+const Pano = ({ subchapterId, isTeacher }) => {
   const [viewer, setViewer] = useState(null);
   const [scenes, setScenes] = useState([]);
   const [scenesReady, setScenesReady] = useState(false);
@@ -316,9 +316,11 @@ const Pano = ({ subchapterId }) => {
 
   return (
     <>
-      <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
-        {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
-      </Button>
+      {isTeacher && ( // Render button only if the user is a teacher
+        <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
+          {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
+        </Button>
+      )}
       {/* {scenes.length === 0 ? (
         <p>Loading scenes...</p>
       ) : (

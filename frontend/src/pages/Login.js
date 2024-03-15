@@ -56,7 +56,14 @@ export default function SignIn() {
         // const accessToken = response.data.access_token;
         // localStorage.setItem('access_token', accessToken);
         localStorage.setItem('access_token', response.data.access);
+        localStorage.setItem('user_id', response.data.user.pk);
+        // console.log(response.data.user.pk);
         console.log(response.data);
+        const userResponse = await axios.get(`http://127.0.0.1:8000/accounts/user/`, {
+        headers: {
+          Authorization: `Bearer ${response.data.access}`
+        }
+      });
         return (<div> DON DON DON</div>);
         // response.json().then(data => {
         //   const token = data.access;

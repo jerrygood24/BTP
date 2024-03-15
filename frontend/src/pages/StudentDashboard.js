@@ -19,7 +19,7 @@ import axios from "axios";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
-
+const isTeacher = false;
 const quiz_questions = {
   questions: [
     {
@@ -44,59 +44,6 @@ const quiz_questions = {
     },
   ],
 };
-
-// const lessons = [
-//   {
-//     lessonTitle: "Lesson 1",
-//     chapters: ["Chapter 1.1", "Chapter 1.2", "Chapter 1.3"],
-//     date: "2023-11-04",
-//     time: "09:00 AM",
-
-//   },
-//   {
-//     lessonTitle: "Lesson 2",
-//     chapters: ["Chapter 2.1", "Chapter 2.2"],
-//     date: "2023-11-05",
-//     time: "10:30 AM",
-
-//   },
-//   {
-//     lessonTitle: "Lesson 4",
-//     chapters: ["Chapter 4.1", "Chapter 4.2", "Chapter 4.3"],
-//     date: "2023-11-08",
-//     time: "09:45 AM",
-
-//   },
-//   {
-//     lessonTitle: "Lesson 5",
-//     chapters: ["Chapter 5.1", "Chapter 5.2"],
-//     date: "2023-11-09",
-//     time: "03:30 PM",
-
-//   },
-//   {
-//     lessonTitle: "Lesson 6",
-//     chapters: ["Chapter 6.1", "Chapter 6.2", "Chapter 6.3"],
-//     date: "2023-11-11",
-//     time: "11:20 AM",
-
-//   },
-//   {
-//     lessonTitle: "Lesson 7",
-//     chapters: ["Chapter 7.1", "Chapter 7.2", "Chapter 7.3", "Chapter 7.4"],
-//     date: "2023-11-12",
-//     time: "01:45 PM",
-
-//   },
-//   {
-//     lessonTitle: "Lesson 8",
-//     chapters: ["Chapter 8.1", "Chapter 8.2"],
-//     date: "2023-11-14",
-//     time: "10:00 AM",
-
-//   },
-
-// ];
 
 const StudentDashboard = () => {
   const [lessons, setLessons] = useState([]);
@@ -248,7 +195,7 @@ const StudentDashboard = () => {
               </Box>
               <div className="pano-container">
                 <div className="pano-box">
-                  <Pano subchapterId={subchapterId}  />
+                  <Pano subchapterId={subchapterId} isTeacher={isTeacher} />
                 </div>
               </div>
             </>
