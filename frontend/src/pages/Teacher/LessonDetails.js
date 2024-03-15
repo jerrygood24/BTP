@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../../css/Repository.css";
-
+import FileUpload from "../../components/FileUpload";
+import Pano from "../../components/Pano";
 import {
   Accordion,
   AccordionSummary,
@@ -25,7 +26,8 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
   const [expandedLesson, setExpandedLesson] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
   const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
-
+  const [subchapterId, setSubchapterId] = useState(null);
+  const [scenes, setScenes] = useState([]);
   const handleAddQuiz = () => {
     setIsAddQuizDialogOpen(true);
   };
@@ -97,7 +99,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
       lessonTitle: selectedLesson.title,
       chapterTitle: selectedChapter.title, 
     });
-
+    setSubchapterId(selectedChapter.id);
     // Set anchorEl to show the students seen menu
     setAnchorEl(
       document.getElementById(`students-menu-${lessonIndex}-${chapterIndex}`)
@@ -179,9 +181,10 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
                   {selectedChapter.chapterTitle}
                 </Typography>
               </Box>
+              <FileUpload subchapterId={subchapterId} />
               <div className="pano-container">
                 <div className="pano-box">
-                  {/* <Pano /> */}
+                <Pano subchapterId={subchapterId} />
                 </div>
               </div>
             </>

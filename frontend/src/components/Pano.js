@@ -5,7 +5,7 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
-const Pano = () => {
+const Pano = ({ subchapterId }) => {
   const [viewer, setViewer] = useState(null);
   const [scenes, setScenes] = useState([]);
   const [scenesReady, setScenesReady] = useState(false);
@@ -32,7 +32,8 @@ const Pano = () => {
 
   const fetchScenesAndHotspots = async () => {
     try {
-      const scenesResponse = await fetch('http://127.0.0.1:8000/accounts/scenes/');
+      const scenesResponse = await fetch('http://127.0.0.1:8000/accounts/scenes/?subchapter=${subchapterId}');
+      console.log("Fetched the scenes for subchapter id ", subchapterId);
       const scenesData = await scenesResponse.json();
       for (const scene of scenesData) {
         console.log(`Fetching hotspots for scene: ${scene.id}`);
@@ -84,7 +85,7 @@ const Pano = () => {
     setModalIsOpen(true);
   };
   useEffect(() => {
-    if (viewer && scenesReady) {
+    if (viewer && scenesReady && scenes.length > 0) {
       // console.log('First scene:', scenes[0]);
       // console.log('Second scene:', scenes[1]);
       const newScenes = scenes.map(sceneData => {
@@ -164,7 +165,7 @@ const Pano = () => {
         console.log('No Scenes available');
       }
     }
-  }, [viewer, scenesReady]);
+  }, [viewer, scenesReady, scenes]);
   const closeModal = () => {
     setModalIsOpen(false);
   };
@@ -200,7 +201,7 @@ const Pano = () => {
   };
   useEffect(() => {
     fetchScenesAndHotspots();
-  }, []);
+  }, [subchapterId]);
 
 
   const toggleAddHotspotMode = () => {
