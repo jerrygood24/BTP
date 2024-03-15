@@ -95,6 +95,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
   console.log('Chapter Index:', chapterIndex);
   console.log('Selected Lesson:', lessonDetails[lessonIndex]);
   console.log('Selected Chapter:', lessonDetails[lessonIndex]?.chapters[chapterIndex]);
+  setScenes([]);
     setSelectedChapter({
       lessonTitle: selectedLesson.title,
       chapterTitle: selectedChapter.title, 

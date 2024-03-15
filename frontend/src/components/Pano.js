@@ -32,7 +32,7 @@ const Pano = ({ subchapterId }) => {
 
   const fetchScenesAndHotspots = async () => {
     try {
-      const scenesResponse = await fetch('http://127.0.0.1:8000/accounts/scenes/?subchapter=${subchapterId}');
+      const scenesResponse = await fetch(`http://127.0.0.1:8000/accounts/scenes/?subchapter=${subchapterId}`);
       console.log("Fetched the scenes for subchapter id ", subchapterId);
       const scenesData = await scenesResponse.json();
       for (const scene of scenesData) {
@@ -319,7 +319,6 @@ const Pano = ({ subchapterId }) => {
       <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
         {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
       </Button>
-      <div id="pano" style={{ width: '100%', height: '500px' }}></div>
       {/* {scenes.length === 0 ? (
         <p>Loading scenes...</p>
       ) : (
