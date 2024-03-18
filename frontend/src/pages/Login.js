@@ -59,11 +59,20 @@ export default function SignIn() {
         localStorage.setItem('user_id', response.data.user.pk);
         // console.log(response.data.user.pk);
         console.log(response.data);
-        const userResponse = await axios.get(`http://127.0.0.1:8000/accounts/user/`, {
-        headers: {
-          Authorization: `Bearer ${response.data.access}`
+        if (response.data.user.role === 'teacher') {
+          const userResponse = await axios.get(`http://127.0.0.1:8000/accounts/teachers/`, {
+            headers: {
+              Authorization: `Bearer ${response.data.access}`
+            }
+          });
+          console.log(userResponse);
+          localStorage.setItem('teacher_id', userResponse.data[0].id);
+          console.log(userResponse.data[0].id);
         }
-      });
+        else {
+          localStorage.setItem('student_id', response.data.user.student);
+        }
+
         return (<div> DON DON DON</div>);
         // response.json().then(data => {
         //   const token = data.access;
@@ -78,7 +87,7 @@ export default function SignIn() {
         // invalid details dikhadenge
       }
     } catch (error) {
-      // Handle network error
+      // Handle network error 
     }
   };
 
