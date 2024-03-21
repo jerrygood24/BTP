@@ -8,6 +8,8 @@ Modal.setAppElement('#root');
 const Pano = ({ subchapterId, isTeacher }) => {
   const [viewer, setViewer] = useState(null);
   const [scenes, setScenes] = useState([]);
+  const [autorotate, setAutorotate] = useState(true);
+  const [autorotateSpeed, setAutorotateSpeed] = useState(0.003);
   const [scenesReady, setScenesReady] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   // const [modalContent, setModalContent] = useState({ type: '', url: '' });
@@ -203,6 +205,23 @@ const Pano = ({ subchapterId, isTeacher }) => {
     fetchScenesAndHotspots();
   }, [subchapterId]);
 
+  const toggleAutorotate = () => {
+    setAutorotate(!autorotate);
+  };
+
+  useEffect(() => {
+    if (viewer && autorotate) {
+      const autorotateInterval = setInterval(() => {
+        const view = viewer.view();
+        if (view) {
+        const newYaw = view.yaw() + autorotateSpeed;
+        view.setYaw(newYaw);
+      }
+      }, 16); // Update every ~60 frames (1000ms / 60 frames = ~16ms)
+      return () => clearInterval(autorotateInterval);
+    }
+  }, [viewer, autorotate, autorotateSpeed]);
+
 
   const toggleAddHotspotMode = () => {
     setIsAddHotspotMode(!isAddHotspotMode);
@@ -316,6 +335,9 @@ const Pano = ({ subchapterId, isTeacher }) => {
 
   return (
     <>
+      <Button onClick={toggleAutorotate} style={{ position: 'absolute', zIndex: 100 }}>
+        {autorotate ? 'Stop Autorotate' : 'Start Autorotate'}
+      </Button>
       {isTeacher && ( // Render button only if the user is a teacher
         <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
           {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
