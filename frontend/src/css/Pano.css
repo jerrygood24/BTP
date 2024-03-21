@@ -38,7 +38,7 @@
   .button{
     display: block; /* Stack buttons vertically */
     margin: 10px 0;
-    margin: 0 10px; /* Space out buttons */
+    margin-right: 10px; /* Space out buttons */
     padding: 5px 10px;
     background-color: blue;
     color: white;
@@ -47,6 +47,7 @@
     cursor: pointer; /* Show a pointer on hover */
     visibility: visible; /* Make sure buttons are visible */
     opacity: 1; /* Full opacity */
+    z-index: 100; /* Ensure buttons are on top */
   }
   .button-container {
     /* z-index: 10; */
@@ -57,10 +58,10 @@
     /* display: flex; Use flexbox for layout */
     /* justify-content: center; Center flex items */
     position: absolute; /* Position absolutely within the relative container */
-  top: 50%; /* Center vertically in the viewer */
-  transform: translateY(-50%); /* Offset the container by half its height */
-  right: 0; /* Position to the right side of the viewer */
-  z-index: 10; /* Ensure it's above the viewer */
+    top: 50%; /* Center vertically in the viewer */
+    transform: translateY(-50%); /* Offset the container by half its height */
+    right: 10px; /* Position to the right side of the viewer */
+    z-index: 100; /* Ensure it's above the viewer */
   }
   .parent-element {
     overflow: visible;
@@ -76,5 +77,44 @@
   
   #pano > div:first-child {
     display: block;
+  }
+  
+  .nav-bar {
+    background-color: #f2f2f2;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100; /* Ensure the nav bar is on top */
+  }
+  
+  .nav-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-left select {
+    margin-left: 10px;
+  }
+  
+  .nav-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  
+  .active {
+    background-color: green; /* Change color for active scene button */
+  }
+  
+  .stop-seen-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
   }
   
