@@ -1,13 +1,19 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, IconButton } from "@mui/material";
+import {
+  PlayArrow, Pause, Add, Clear, ArrowUpward, ArrowDownward,
+  ArrowBack, ArrowForward, ZoomIn, ZoomOut,
+} from "@mui/icons-material";
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
-const Pano = () => {
+const Pano = ({ subchapterId, isTeacher }) => {
   const [viewer, setViewer] = useState(null);
   const [scenes, setScenes] = useState([]);
+  const [autorotate, setAutorotate] = useState(true);
+  const [autorotateSpeed, setAutorotateSpeed] = useState(0.003);
   const [scenesReady, setScenesReady] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   // const [modalContent, setModalContent] = useState({ type: '', url: '' });
@@ -32,7 +38,8 @@ const Pano = () => {
 
   const fetchScenesAndHotspots = async () => {
     try {
-      const scenesResponse = await fetch('http://127.0.0.1:8000/accounts/scenes/');
+      const scenesResponse = await fetch(`http://127.0.0.1:8000/accounts/scenes/?subchapter=${subchapterId}`);
+      console.log("Fetched the scenes for subchapter id ", subchapterId);
       const scenesData = await scenesResponse.json();
       for (const scene of scenesData) {
         console.log(`Fetching hotspots for scene: ${scene.id}`);
@@ -45,7 +52,7 @@ const Pano = () => {
       setScenes(scenesData);
       if (scenesData.length > 0) {
         setCurrentSceneId(scenesData[0].id);
-        console.log("The scene id is ",scenesData[0].id);
+        console.log("The scene id is ", scenesData[0].id);
       }
       setScenesReady(true);
       setViewer(prevViewer => {
@@ -83,8 +90,42 @@ const Pano = () => {
     setSelectedVideoUrl(videoUrl);
     setModalIsOpen(true);
   };
+  const handleSceneMovement = (direction) => {
+    if (!viewer) return; // Ensure viewer is available
+  
+    const view = viewer.view();
+    if (!view) return; // Ensure view is available
+  
+    let angle = Math.PI / 36; // 5 degrees in radians
+    if (direction === "zoom-in" || direction === "zoom-out") {
+      angle = 0.1; // Adjust zooming speed
+    }
+
+    switch (direction) {
+      case "left":
+        view.setYaw(view.yaw() - angle);
+        break;
+      case "right":
+        view.setYaw(view.yaw() + angle);
+        break;
+      case "up":
+        view.setPitch(view.pitch() - angle);
+        break;
+      case "down":
+        view.setPitch(view.pitch() + angle);
+        break;
+      case "zoom-out":
+        view.setFov(view.fov() * 1.1);
+        break;
+      case "zoom-in":
+        view.setFov(view.fov() * 0.9);
+        break;
+      default:
+        break;
+    }
+  };
   useEffect(() => {
-    if (viewer && scenesReady) {
+    if (viewer && scenesReady && scenes.length > 0) {
       // console.log('First scene:', scenes[0]);
       // console.log('Second scene:', scenes[1]);
       const newScenes = scenes.map(sceneData => {
@@ -164,7 +205,7 @@ const Pano = () => {
         console.log('No Scenes available');
       }
     }
-  }, [viewer, scenesReady]);
+  }, [viewer, scenesReady, scenes]);
   const closeModal = () => {
     setModalIsOpen(false);
   };
@@ -193,14 +234,31 @@ const Pano = () => {
       console.log('Found scene, switching...', sceneToSwitch);
       setCurrentSceneId(sceneToSwitch.id);
       sceneToSwitch.scene.switchTo();
-      console.log("The current scene id is ",currentSceneId);
+      console.log("The current scene id is ", currentSceneId);
     } else {
       console.error('Scene to switch to was not found or is not initialized correctly');
     }
   };
   useEffect(() => {
     fetchScenesAndHotspots();
-  }, []);
+  }, [subchapterId]);
+
+  const toggleAutorotate = () => {
+    setAutorotate(!autorotate);
+  };
+
+  useEffect(() => {
+    if (viewer && autorotate) {
+      const autorotateInterval = setInterval(() => {
+        const view = viewer.view();
+        if (view) {
+          const newYaw = view.yaw() + autorotateSpeed;
+          view.setYaw(newYaw);
+        }
+      }, 32); // Update every ~60 frames (1000ms / 60 frames = ~16ms)
+      return () => clearInterval(autorotateInterval);
+    }
+  }, [viewer, autorotate, autorotateSpeed]);
 
 
   const toggleAddHotspotMode = () => {
@@ -315,10 +373,46 @@ const Pano = () => {
 
   return (
     <>
-      <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
-        {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
-      </Button>
-      <div id="pano" style={{ width: '100%', height: '500px' }}></div>
+      <div className="nav-bar">
+        <div className="nav-left">
+          {/* <Typography variant="h6">Scene Selector:</Typography>
+          <select onChange={(e) => switchScene(e.target.value)}>
+            {scenes.map((scene) => (
+              <option key={scene.id} value={scene.id}>
+                {`Scene ${scene.id}`}
+              </option>
+            ))}
+          </select> */}
+          <IconButton onClick={() => handleSceneMovement("up")}>
+            <ArrowUpward />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("down")}>
+            <ArrowDownward />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("left")}>
+            <ArrowBack />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("right")}>
+            <ArrowForward />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("zoom-in")}>
+            <ZoomIn />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("zoom-out")}>
+            <ZoomOut />
+          </IconButton>
+        </div>
+        <div className="nav-right">
+          <Button onClick={toggleAutorotate}>
+            {autorotate ? <Pause /> : <PlayArrow />}
+          </Button>
+          {isTeacher && ( // Render button only if the user is a teacher
+            <Button onClick={toggleAddHotspotMode}>
+              {isAddHotspotMode ? <Clear /> : <Add />}
+            </Button>
+          )}
+        </div>
+      </div>
       {/* {scenes.length === 0 ? (
         <p>Loading scenes...</p>
       ) : (
@@ -417,7 +511,7 @@ const Pano = () => {
         </Box>
       </Modal>
       <div id="pano" style={{ width: '100%', height: '500px' }}></div>
-      <div className="button-container">
+      {/* <div className="button-container">
         {scenes.length === 0 ? (
           <p>Loading scenes...</p>
         ) : (
@@ -434,7 +528,7 @@ const Pano = () => {
             );
           })
         )}
-      </div>
+      </div> */}
     </>
   );
 };
