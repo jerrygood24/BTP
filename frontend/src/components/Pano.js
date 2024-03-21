@@ -1,7 +1,11 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Marzipano from "marzipano";
 import "../css/Pano.css";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography, IconButton } from "@mui/material";
+import {
+  PlayArrow, Pause, Add, Clear, ArrowUpward, ArrowDownward,
+  ArrowBack, ArrowForward, ZoomIn, ZoomOut,
+} from "@mui/icons-material";
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
@@ -48,7 +52,7 @@ const Pano = ({ subchapterId, isTeacher }) => {
       setScenes(scenesData);
       if (scenesData.length > 0) {
         setCurrentSceneId(scenesData[0].id);
-        console.log("The scene id is ",scenesData[0].id);
+        console.log("The scene id is ", scenesData[0].id);
       }
       setScenesReady(true);
       setViewer(prevViewer => {
@@ -85,6 +89,40 @@ const Pano = ({ subchapterId, isTeacher }) => {
   const openModal = (videoUrl) => {
     setSelectedVideoUrl(videoUrl);
     setModalIsOpen(true);
+  };
+  const handleSceneMovement = (direction) => {
+    if (!viewer) return; // Ensure viewer is available
+  
+    const view = viewer.view();
+    if (!view) return; // Ensure view is available
+  
+    let angle = Math.PI / 36; // 5 degrees in radians
+    if (direction === "zoom-in" || direction === "zoom-out") {
+      angle = 0.1; // Adjust zooming speed
+    }
+
+    switch (direction) {
+      case "left":
+        view.setYaw(view.yaw() - angle);
+        break;
+      case "right":
+        view.setYaw(view.yaw() + angle);
+        break;
+      case "up":
+        view.setPitch(view.pitch() - angle);
+        break;
+      case "down":
+        view.setPitch(view.pitch() + angle);
+        break;
+      case "zoom-out":
+        view.setFov(view.fov() * 1.1);
+        break;
+      case "zoom-in":
+        view.setFov(view.fov() * 0.9);
+        break;
+      default:
+        break;
+    }
   };
   useEffect(() => {
     if (viewer && scenesReady && scenes.length > 0) {
@@ -196,7 +234,7 @@ const Pano = ({ subchapterId, isTeacher }) => {
       console.log('Found scene, switching...', sceneToSwitch);
       setCurrentSceneId(sceneToSwitch.id);
       sceneToSwitch.scene.switchTo();
-      console.log("The current scene id is ",currentSceneId);
+      console.log("The current scene id is ", currentSceneId);
     } else {
       console.error('Scene to switch to was not found or is not initialized correctly');
     }
@@ -214,10 +252,10 @@ const Pano = ({ subchapterId, isTeacher }) => {
       const autorotateInterval = setInterval(() => {
         const view = viewer.view();
         if (view) {
-        const newYaw = view.yaw() + autorotateSpeed;
-        view.setYaw(newYaw);
-      }
-      }, 16); // Update every ~60 frames (1000ms / 60 frames = ~16ms)
+          const newYaw = view.yaw() + autorotateSpeed;
+          view.setYaw(newYaw);
+        }
+      }, 32); // Update every ~60 frames (1000ms / 60 frames = ~16ms)
       return () => clearInterval(autorotateInterval);
     }
   }, [viewer, autorotate, autorotateSpeed]);
@@ -335,14 +373,46 @@ const Pano = ({ subchapterId, isTeacher }) => {
 
   return (
     <>
-      <Button onClick={toggleAutorotate} style={{ position: 'absolute', zIndex: 100 }}>
-        {autorotate ? 'Stop Autorotate' : 'Start Autorotate'}
-      </Button>
-      {isTeacher && ( // Render button only if the user is a teacher
-        <Button onClick={toggleAddHotspotMode} style={{ position: 'absolute', zIndex: 100 }}>
-          {isAddHotspotMode ? 'Cancel Adding Hotspot' : 'Add Hotspot'}
-        </Button>
-      )}
+      <div className="nav-bar">
+        <div className="nav-left">
+          {/* <Typography variant="h6">Scene Selector:</Typography>
+          <select onChange={(e) => switchScene(e.target.value)}>
+            {scenes.map((scene) => (
+              <option key={scene.id} value={scene.id}>
+                {`Scene ${scene.id}`}
+              </option>
+            ))}
+          </select> */}
+          <IconButton onClick={() => handleSceneMovement("up")}>
+            <ArrowUpward />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("down")}>
+            <ArrowDownward />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("left")}>
+            <ArrowBack />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("right")}>
+            <ArrowForward />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("zoom-in")}>
+            <ZoomIn />
+          </IconButton>
+          <IconButton onClick={() => handleSceneMovement("zoom-out")}>
+            <ZoomOut />
+          </IconButton>
+        </div>
+        <div className="nav-right">
+          <Button onClick={toggleAutorotate}>
+            {autorotate ? <Pause /> : <PlayArrow />}
+          </Button>
+          {isTeacher && ( // Render button only if the user is a teacher
+            <Button onClick={toggleAddHotspotMode}>
+              {isAddHotspotMode ? <Clear /> : <Add />}
+            </Button>
+          )}
+        </div>
+      </div>
       {/* {scenes.length === 0 ? (
         <p>Loading scenes...</p>
       ) : (
@@ -441,7 +511,7 @@ const Pano = ({ subchapterId, isTeacher }) => {
         </Box>
       </Modal>
       <div id="pano" style={{ width: '100%', height: '500px' }}></div>
-      <div className="button-container">
+      {/* <div className="button-container">
         {scenes.length === 0 ? (
           <p>Loading scenes...</p>
         ) : (
@@ -458,7 +528,7 @@ const Pano = ({ subchapterId, isTeacher }) => {
             );
           })
         )}
-      </div>
+      </div> */}
     </>
   );
 };
