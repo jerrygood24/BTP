@@ -20,6 +20,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import { ConstructionOutlined } from "@mui/icons-material";
+import axios from 'axios';
 
 const lessons = [
   {
@@ -95,7 +96,18 @@ const LessonDetails = (props) => {
     // You can access the lesson details using props.lessonDetails
     // Update the lesson details with the new quiz data
     // Close the dialog
+    const subject = quizData["subject"];
+    const title = quizData["title"];
+
     console.log(quizData);
+    axios.post(`http://127.0.0.1:8000/quizzes/create_quiz/?subject=${subject}&title=${title}`, quizData)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
   };
 
   const handleAddChapter = (lessonIndex) => {
@@ -197,8 +209,8 @@ const LessonDetails = (props) => {
                   ))}
                 </List>
                 <Button variant="outlined" onClick={() => handleAddChapter(lessonIndex)}>Add Chapter</Button>
-                <Button variant="outlined"  onClick={handleAddQuiz}>Add Quiz</Button>
-                <QuizDialog isOpen={isAddQuizDialogOpen} onClose={handleCloseAddQuizDialog} onAddQuiz={handleAddQuizSubmit} />
+                <Button variant="outlined" onClick={handleAddQuiz}>Add Quiz</Button>
+                <QuizDialog isOpen={isAddQuizDialogOpen} onClose={handleCloseAddQuizDialog} onAddQuiz={handleAddQuizSubmit} title={lesson.lessonTitle} subject={props.subject} />
               </AccordionDetails>
             </Accordion>
           ))}
@@ -257,7 +269,7 @@ const LessonDetails = (props) => {
             <Typography variant="h6">Select a Chapter!</Typography>
           )}
         </Box>
-        
+
       </div>
     </>
   );

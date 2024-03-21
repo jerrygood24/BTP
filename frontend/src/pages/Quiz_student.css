@@ -1,0 +1,3 @@
+.selected-option {
+    background-color: lightgreen !important; /* Use !important to ensure the style is applied */
+}

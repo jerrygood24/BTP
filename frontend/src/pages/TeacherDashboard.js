@@ -2,11 +2,14 @@ import { Box } from "@mui/material";
 import LessonDetails from "./Teacher/LessonDetails";
 import TeacherDetails from "./Teacher/TeacherDetails";
 import React, { useEffect, useState } from 'react';
-// import axios from "axios";
+import axios from "axios";
 // import TeacherDashboard from "./Teacher/LessonDetails";
 
 const TeacherDashboard = () => {
   const [lessonDetails, setLessonDetails] = useState([]);
+  const [subject,setsubject]=useState("");
+  const [title,settitle]=useState("");
+
   useEffect(() => {
     setLessonDetails([{
       lessonTitle: "Lesson 1",
@@ -59,11 +62,12 @@ const TeacherDashboard = () => {
     }])
   }, [])
 
-  const fetchLessonDetailsForSubject = async (subject) => {
+  const fetchLessonDetailsForSubject = async (subject, title) => {
     // Fetch lesson details for the subject and update the state
     // Example: You may call an API endpoint to fetch data
-    // const response = await axios.get(`/api/lesson-details/${subject}`);
     // setLessonDetails(response.data);
+    setsubject(subject);
+    settitle(title);
     setLessonDetails([{
       lessonTitle: "Lesson 1",
       chapters: ["Chapter 1.1", "Chapter 1.2", "Chapter 1.3"],
@@ -98,10 +102,10 @@ const TeacherDashboard = () => {
   return (
     <Box display={"flex"} flexDirection={"row"} alignItems={"center"}>
       <TeacherDetails onSubjectSelect={fetchLessonDetailsForSubject} />
-      <LessonDetails lessonDetails={lessonDetails} setLesson={setLessonDetails} />
-      
+      <LessonDetails lessonDetails={lessonDetails} setLesson={setLessonDetails} subject={subject} />
+
     </Box>
-  
+
   );
 }
 

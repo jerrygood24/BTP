@@ -22,26 +22,24 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 
 const quiz_questions = {
   questions: [
-      {
-          id: 1,
-          text: "What is the capital of France?",
-          options: [
-              { id: 1, text: "Paris", isCorrect: true },
-              { id: 2, text: "London", isCorrect: false },
-              { id: 3, text: "Berlin", isCorrect: false },
-              { id: 4, text: "Rome", isCorrect: false },
-          ],
-      },
-      {
-          id: 2,
-          text: "Which planet is known as the Red Planet?",
-          options: [
-              { id: 1, text: "Mars", isCorrect: true },
-              { id: 2, text: "Venus", isCorrect: false },
-              { id: 3, text: "Jupiter", isCorrect: false },
-              { id: 4, text: "Saturn", isCorrect: false },
-          ],
-      },
+    {
+      text: "What is the capital of France?",
+      options: [
+        { text: "Paris", is_correct: true },
+        { text: "London", is_correct: false },
+        { text: "Berlin", is_correct: false },
+        { text: "Rome", is_correct: false },
+      ],
+    },
+    {
+      text: "Which planet is known as the Red Planet?",
+      options: [
+        { text: "Mars", is_correct: true },
+        { text: "Venus", is_correct: false },
+        { text: "Jupiter", is_correct: false },
+        { text: "Saturn", is_correct: false },
+      ],
+    },
   ],
 };
 
@@ -180,8 +178,8 @@ const StudentDashboard = () => {
                     </ListItem>
                   ))}
                 </List>
-                <Button variant="outlined" onClick={handleAddQuiz}>Add Quiz</Button>
-                <Quizstudents inclose={isAddQuizDialogOpen} onclose={handleCloseAddQuizDialog} quiz={quiz_questions} />
+                <Button variant="outlined" onClick={handleAddQuiz}>Take Quiz</Button>
+                <Quizstudents inclose={isAddQuizDialogOpen} onclose={handleCloseAddQuizDialog} quiz={quiz_questions} title={lesson.lessonTitle} />
               </AccordionDetails>
             </Accordion>
           ))}
