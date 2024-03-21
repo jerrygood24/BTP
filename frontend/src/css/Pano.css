@@ -83,6 +83,7 @@
     background-color: #f2f2f2;
     padding: 10px;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     align-items: center;
     position: absolute;
