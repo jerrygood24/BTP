@@ -1,0 +1,25 @@
+.search-container {
+    margin-bottom: 20px;
+  }
+  
+  /* Style for the search input */
+  .search-container .MuiTextField-root {
+    width: 100%;
+  }
+  
+  /* Style for the list of chapters */
+  .chapters-list {
+    margin-top: 10px;
+  }
+  
+  /* Style for each chapter item */
+  .chapters-list .chapter-item {
+    margin-bottom: 5px;
+  }
+  
+  /* Style for buttons in chapter items */
+  .chapters-list .chapter-item button {
+    text-transform: none;
+    width: 100%;
+  }
+  
