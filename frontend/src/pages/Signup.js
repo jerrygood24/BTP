@@ -14,11 +14,17 @@ import axios from 'axios';
 
 function SignUp() {
   const [showTeacherDetails, setShowTeacherDetails] = useState(false);
+  const [showStudentDetails, setShowStudentDetails] = useState(false);
   const [teacherDetails, setTeacherDetails] = useState({
     user: '',
     name: '',
     designation: '',
     subject: '',
+    photo: null,
+  });
+  const [studentDetails, setStudentDetails] = useState({
+    user: '',
+    name: '',
     photo: null,
   });
   const handleSubmit = async (event) => {
@@ -47,6 +53,8 @@ function SignUp() {
         console.log("Successfull signup ", response.data);
         if (dataToSend.role === 'teacher') {
           setShowTeacherDetails(true);
+        }else if (dataToSend.role === 'student') {
+          setShowStudentDetails(true);
         }
         return (<div> Don DON Don</div>);
       }
@@ -88,6 +96,33 @@ function SignUp() {
       console.error("Error:", error.response.data);
     }
   };
+  const handleStudentDetailsSubmit = async (event) => {
+    event.preventDefault();
+    const userId = localStorage.getItem('user_id');
+    const formData = new FormData();
+    formData.append('user', userId);
+    formData.append('name', studentDetails.name);
+    formData.append('photo', studentDetails.photo);
+
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/accounts/students/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+
+      if (response.status === 201) {
+        localStorage.setItem('student_id', response.data.id);
+        console.log("Student ID stored in localStorage:", localStorage.getItem('student_id'));
+        console.log("Student details submitted successfully");
+      } else {
+        // Handle other response statuses
+      }
+    } catch (error) {
+      console.error("Error:", error.response.data);
+    }
+  };
   const handleTeacherInputChange = (event) => {
     const { name, value } = event.target;
     setTeacherDetails(prevState => ({
@@ -95,14 +130,31 @@ function SignUp() {
       [name]: value,
     }));
   };
-
-  // Function to handle photo upload for teacher details
-  const handlePhotoUpload = (event) => {
-    const file = event.target.files[0];
-    setTeacherDetails(prevState => ({
+  const handleStudentInputChange = (event) => {
+    const { name, value } = event.target;
+    setStudentDetails(prevState => ({
       ...prevState,
-      photo: file,
+      [name]: value,
     }));
+  };
+  // Function to handle photo upload for teacher details
+  const handlePhotoUpload = (event, userType) => {
+    const file = event.target.files[0];
+    // setTeacherDetails(prevState => ({
+    //   ...prevState,
+    //   photo: file,
+    // }));
+    if (userType === 'teacher') {
+      setTeacherDetails(prevState => ({
+        ...prevState,
+        photo: file,
+      }));
+    } else if (userType === 'student') {
+      setStudentDetails(prevState => ({
+        ...prevState,
+        photo: file,
+      }));
+    }
   };
 
 
@@ -234,7 +286,7 @@ function SignUp() {
               />
               <input
                 type="file"
-                onChange={handlePhotoUpload}
+                onChange={(event) => handlePhotoUpload(event, 'teacher')}
               />
               <Button
                 type="submit"
@@ -243,6 +295,32 @@ function SignUp() {
                 sx={{ mt: 3, mb: 2 }}
               >
                 Submit Teacher Details
+              </Button>
+            </Box>
+          )}
+          {showStudentDetails && (
+            <Box component="form" onSubmit={handleStudentDetailsSubmit} noValidate sx={{ mt: 3 }}>
+              <TextField
+                required
+                fullWidth
+                id="name"
+                label="Name"
+                name="name"
+                value={studentDetails.name}
+                onChange={handleStudentInputChange}
+              />
+
+              <input
+                type="file"
+                onChange={(event) => handlePhotoUpload(event, 'student')}
+              />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Submit Student Details
               </Button>
             </Box>
           )}
