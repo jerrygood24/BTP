@@ -21,7 +21,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import axios from "axios";
 const isTeacher = true;
-const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
+const LessonDetails = ({ lessonDetails, setLessonDetails, subject, lessons }) => {
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [expandedLesson, setExpandedLesson] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -35,20 +35,20 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
   const handleCloseAddQuizDialog = () => {
     setIsAddQuizDialogOpen(false);
   };
+  console.log(lessons);
+  const handleAddQuizSubmit = (quizData, lessonIndex) => {
+    // const subject = quizData["subject"];
+    // const title = quizData["title"];
+    // const lessons=quizData["lessons"];
 
-  const handleAddQuizSubmit = (quizData) => {
-    const subject = quizData["subject"];
-    const title = quizData["title"];
-
-    console.log(quizData);
-    axios.post(`http://127.0.0.1:8000/quizzes/create_quiz/?subject=${subject}&title=${title}`, quizData)
+    console.log(lessons[lessonIndex].id);
+    axios.post(`http://127.0.0.1:8000/quizzes/create_quiz/?lesson_id=${lessons[lessonIndex].id}`, quizData)
       .then(function (response) {
         console.log(response);
       })
       .catch(function (error) {
         console.log(error);
       });
-
   };
 
   const handleAddChapter = async (lessonIndex) => {
@@ -62,7 +62,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
         const response = await axios.post("http://127.0.0.1:8000/accounts/subchapters/", {
           lesson: lessonId,
           title: newChapterTitle,
-        },{
+        }, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -95,6 +95,8 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
         });
         console.log("response:", response.data);
         setLessonDetails([...lessonDetails, response.data]);
+        window.location.reload();
+
       } else {
         alert("Please enter a lesson title.");
       }
@@ -107,13 +109,13 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
     const selectedLesson = lessonDetails[lessonIndex];
     const selectedChapter = selectedLesson.chapters[chapterIndex];
     console.log('Lesson Index:', lessonIndex);
-  console.log('Chapter Index:', chapterIndex);
-  console.log('Selected Lesson:', lessonDetails[lessonIndex]);
-  console.log('Selected Chapter:', lessonDetails[lessonIndex]?.chapters[chapterIndex]);
-  setScenes([]);
+    console.log('Chapter Index:', chapterIndex);
+    console.log('Selected Lesson:', lessonDetails[lessonIndex]);
+    console.log('Selected Chapter:', lessonDetails[lessonIndex]?.chapters[chapterIndex]);
+    setScenes([]);
     setSelectedChapter({
       lessonTitle: selectedLesson.title,
-      chapterTitle: selectedChapter.title, 
+      chapterTitle: selectedChapter.title,
     });
     setSubchapterId(selectedChapter.id);
     // Set anchorEl to show the students seen menu
@@ -136,7 +138,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
               <AddBoxIcon />
             </IconButton>
           </Box>
-  
+
           {lessonDetails && lessonDetails.map((lesson, lessonIndex) => (
             <Accordion
               key={lessonIndex}
@@ -154,7 +156,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
               >
                 <Typography>{lesson.title}</Typography>
               </AccordionSummary>
-  
+
               <AccordionDetails>
                 <List>
                   {lesson.chapters && lesson.chapters.map((chapter, chapterIndex) => (
@@ -172,7 +174,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
                 </List>
                 <Button variant="outlined" onClick={() => handleAddChapter(lessonIndex)}>Add Chapter</Button>
                 <Button variant="outlined" onClick={handleAddQuiz}>Add Quiz</Button>
-                <QuizDialog isOpen={isAddQuizDialogOpen} onClose={handleCloseAddQuizDialog} onAddQuiz={handleAddQuizSubmit} title={lesson.lessonTitle} subject={props.subject} />
+                <QuizDialog isOpen={isAddQuizDialogOpen} onClose={handleCloseAddQuizDialog} onAddQuiz={handleAddQuizSubmit} title={lesson.title} lessonindex={lessonIndex} lessons={lessons} />
               </AccordionDetails>
             </Accordion>
           ))}
@@ -186,7 +188,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
             alignItems: "center",
           }}
         >
-  
+
           {selectedChapter ? (
             <>
               <Box className="info" style={{ display: "flex", flexDirection: "row" }}>
@@ -200,7 +202,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
               <FileUpload subchapterId={subchapterId} />
               <div className="pano-container">
                 <div className="pano-box">
-                <Pano subchapterId={subchapterId} isTeacher={isTeacher} />
+                  <Pano subchapterId={subchapterId} isTeacher={isTeacher} />
                 </div>
               </div>
             </>
@@ -208,11 +210,11 @@ const LessonDetails = ({ lessonDetails, setLessonDetails }) => {
             <Typography variant="h6">Select a Chapter!</Typography>
           )}
         </Box>
-        
+
       </div>
     </>
   );
-  
+
 };
 
 export default LessonDetails;

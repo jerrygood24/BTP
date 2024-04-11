@@ -20,30 +20,30 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 const isTeacher = false;
-const quiz_questions = {
-  questions: [
-      {
-          id: 1,
-          text: "What is the capital of France?",
-          options: [
-              { id: 1, text: "Paris", isCorrect: true },
-              { id: 2, text: "London", isCorrect: false },
-              { id: 3, text: "Berlin", isCorrect: false },
-              { id: 4, text: "Rome", isCorrect: false },
-          ],
-      },
-      {
-          id: 2,
-          text: "Which planet is known as the Red Planet?",
-          options: [
-              { id: 1, text: "Mars", isCorrect: true },
-              { id: 2, text: "Venus", isCorrect: false },
-              { id: 3, text: "Jupiter", isCorrect: false },
-              { id: 4, text: "Saturn", isCorrect: false },
-          ],
-      },
-  ],
-};
+// const quiz_questions = {
+//   questions: [
+//     {
+//       id: 1,
+//       text: "What is the capital of France?",
+//       options: [
+//         { id: 1, text: "Paris", isCorrect: true },
+//         { id: 2, text: "London", isCorrect: false },
+//         { id: 3, text: "Berlin", isCorrect: false },
+//         { id: 4, text: "Rome", isCorrect: false },
+//       ],
+//     },
+//     {
+//       id: 2,
+//       text: "Which planet is known as the Red Planet?",
+//       options: [
+//         { id: 1, text: "Mars", isCorrect: true },
+//         { id: 2, text: "Venus", isCorrect: false },
+//         { id: 3, text: "Jupiter", isCorrect: false },
+//         { id: 4, text: "Saturn", isCorrect: false },
+//       ],
+//     },
+//   ],
+// };
 
 const StudentDashboard = () => {
   const [lessons, setLessons] = useState([]);
@@ -52,22 +52,12 @@ const StudentDashboard = () => {
   const [anchorEl, setAnchorEl] = useState(null); // Declare anchorEl and setAnchorEl
   const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
   const [subchapterId, setSubchapterId] = useState(null);
+  const [quizDialogStates, setQuizDialogStates] = useState([]);
   const accessToken = localStorage.getItem("access_token");
   useEffect(() => {
     fetchLessonsData();
   }, []);
   const fetchLessonsData = async () => {
-    // axios.get(`http://127.0.0.1:8000/accounts/lessons/`, {
-    //   headers: {
-    //     Authorization: `Bearer ${accessToken}`,
-    //   },})
-    // .then(response => {
-    //   console.log('Lessons:', response.data);
-    //   setLessons(response.data);
-    // })
-    // .catch(error => {
-    //   console.error('Error fetching lessons:', error);
-    // });
     try {
       const lessonsResponse = await axios.get(`http://127.0.0.1:8000/accounts/lessons/`, {
         headers: {
@@ -86,6 +76,7 @@ const StudentDashboard = () => {
         return { ...lesson, chapters: chaptersResponse.data };
       }));
       setLessons(lessonsWithChapters);
+      setQuizDialogStates(Array(lessonsWithChapters.length).fill(false));
       console.log("Lesson with Chapters:", lessonsWithChapters);
     } catch (error) {
       console.error("Error fetching lesson details:", error);
@@ -106,17 +97,19 @@ const StudentDashboard = () => {
     );
   };
 
-  const closeStudentsMenu = () => {
-    setAnchorEl(null);
-  };
+
 
   // const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
 
-  const handleAddQuiz = () => {
-    setIsAddQuizDialogOpen(true);
+  const handleAddQuiz = (lessonIndex) => {
+    const updatedQuizDialogStates = [...quizDialogStates];
+    updatedQuizDialogStates[lessonIndex] = true;
+    setQuizDialogStates(updatedQuizDialogStates);
   };
-  const handleCloseAddQuizDialog = () => {
-    setIsAddQuizDialogOpen(false);
+  const handleCloseAddQuizDialog = (lessonIndex) => {
+    const updatedQuizDialogStates = [...quizDialogStates];
+    updatedQuizDialogStates[lessonIndex] = false;
+    setQuizDialogStates(updatedQuizDialogStates);
   };
 
   return (
@@ -133,7 +126,7 @@ const StudentDashboard = () => {
 
           </Box>
 
-          {lessons && lessons.map((lesson, lessonIndex) => (
+          {/* {lessons && lessons.map((lesson, lessonIndex) => (
             <Accordion
               key={lessonIndex}
               expanded={lessonIndex === expandedLesson}
@@ -167,7 +160,25 @@ const StudentDashboard = () => {
                   ))}
                 </List>
                 <Button variant="outlined" onClick={handleAddQuiz}>Take Quiz</Button>
-                <Quizstudents inclose={isAddQuizDialogOpen} onclose={handleCloseAddQuizDialog} quiz={quiz_questions} title={lesson.lessonTitle} />
+                <Quizstudents inclose={isAddQuizDialogOpen} onclose={handleCloseAddQuizDialog} quiz={quiz_questions} title={lesson.lessonTitle} lessons={lessons} lessonindex={lessonIndex} />
+              </AccordionDetails>
+            </Accordion>
+          ))} */}
+          {lessons && lessons.map((lesson, lessonIndex) => (
+            <Accordion key={lessonIndex} expanded={lessonIndex === expandedLesson} onChange={() => setExpandedLesson(lessonIndex === expandedLesson ? null : lessonIndex)}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`lesson-${lessonIndex}-content`} id={`lesson-${lessonIndex}-header`}>
+                <Typography>{lesson.title}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <List>
+                  {lesson.chapters && lesson.chapters.map((chapter, chapterIndex) => (
+                    <ListItem key={chapterIndex} onClick={() => handleChapterClick(lessonIndex, chapterIndex)}>
+                      <Button variant="contained">{chapter.title}</Button>
+                    </ListItem>
+                  ))}
+                </List>
+                <Button variant="outlined" onClick={() => handleAddQuiz(lessonIndex)}>Take Quiz</Button>
+                <Quizstudents inclose={quizDialogStates[lessonIndex]} onclose={() => handleCloseAddQuizDialog(lessonIndex)} title={lesson.lessonTitle} lessons={lessons} lessonindex={lessonIndex} />
               </AccordionDetails>
             </Accordion>
           ))}

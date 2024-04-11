@@ -3,21 +3,21 @@ import { Dialog, DialogTitle, DialogContent, Button } from "@mui/material";
 import axios from "axios";
 import './Quiz_student.css';
 
-const QuizTakingDialog = ({ inclose, onclose, title }) => {
+const QuizTakingDialog = ({ inclose, onclose, title, lessons, lessonindex }) => {
     const [quiz, setQuiz] = useState(null);
     const [answers, setAnswers] = useState({});
 
     useEffect(() => {
         const fetchQuiz = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/quizzes/fetch_quiz/?title=${title}`);
+                const response = await axios.get(`http://127.0.0.1:8000/quizzes/fetch_quiz/?lesson_id=${lessons[lessonindex].id}`);
                 setQuiz(response.data);
             } catch (error) {
                 console.error("Error fetching quiz:", error);
             }
         };
         fetchQuiz();
-    }, [title]);
+    }, [lessons[lessonindex].id]);
 
     const handleOptionSelect = (questionId, optionId) => {
         setAnswers({ ...answers, [questionId]: optionId });

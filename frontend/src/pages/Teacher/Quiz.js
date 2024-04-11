@@ -8,8 +8,9 @@ import {
   TextField,
   MenuItem,
 } from '@mui/material';
+import LessonDetails from './LessonDetails';
 
-const QuizDialog = ({ isOpen, onClose, onAddQuiz, subject, title }) => {
+const QuizDialog = ({ isOpen, onClose, onAddQuiz, title,lessonindex,lessons }) => {
   const [questions, setQuestions] = useState([{ question: '', options: ['', '', '', ''], is_correct: -1 }]);
 
   const handleAddQuestion = () => {
@@ -33,9 +34,10 @@ const QuizDialog = ({ isOpen, onClose, onAddQuiz, subject, title }) => {
       )
     ) {
       // Map questions data to the desired format
+      console.log(lessonindex);
       const quizData = {
         title: title,
-        subject: subject,
+        lesson_id: lessons[lessonindex].id,
         questions: questions.map((question) => ({
           text: question.question,
           options: question.options.map((option, index) => ({
@@ -46,7 +48,7 @@ const QuizDialog = ({ isOpen, onClose, onAddQuiz, subject, title }) => {
       };
 
       // Call the onAddQuiz callback with the formatted quiz data
-      onAddQuiz(quizData);
+      onAddQuiz(quizData,lessonindex);
 
       // Close the dialog
       onClose();
