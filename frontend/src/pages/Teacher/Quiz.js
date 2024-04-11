@@ -8,12 +8,13 @@ import {
   TextField,
   MenuItem,
 } from '@mui/material';
+import LessonDetails from './LessonDetails';
 
-const QuizDialog = ({ isOpen, onClose, onAddQuiz }) => {
-  const [questions, setQuestions] = useState([{ question: '', options: ['', '', '', ''], correctOptionIndex: -1 }]);
+const QuizDialog = ({ isOpen, onClose, onAddQuiz, title,lessonindex,lessons }) => {
+  const [questions, setQuestions] = useState([{ question: '', options: ['', '', '', ''], is_correct: -1 }]);
 
   const handleAddQuestion = () => {
-    setQuestions([...questions, { question: '', options: ['', '', '', ''], correctOptionIndex: -1 }]);
+    setQuestions([...questions, { question: '', options: ['', '', '', ''], is_correct: -1 }]);
   };
 
   const handleRemoveQuestion = (index) => {
@@ -24,14 +25,38 @@ const QuizDialog = ({ isOpen, onClose, onAddQuiz }) => {
 
   const handleAddQuiz = () => {
     // Validate and submit quiz data
-    if (questions.every(question => question.question && question.options.every(option => option.trim() !== '') && question.correctOptionIndex !== -1)) {
-      onAddQuiz(questions);
+    if (
+      questions.every(
+        (question) =>
+          question.question &&
+          question.options.every((option) => option.trim() !== '') &&
+          question.is_correct !== -1
+      )
+    ) {
+      // Map questions data to the desired format
+      console.log(lessonindex);
+      const quizData = {
+        title: title,
+        lesson_id: lessons[lessonindex].id,
+        questions: questions.map((question) => ({
+          text: question.question,
+          options: question.options.map((option, index) => ({
+            text: option,
+            is_correct: index === question.is_correct,
+          })),
+        })),
+      };
+
+      // Call the onAddQuiz callback with the formatted quiz data
+      onAddQuiz(quizData,lessonindex);
+
       // Close the dialog
       onClose();
     } else {
       alert('Please fill in all fields for each question and select the correct option.');
     }
   };
+
 
   const handleQuestionInputChange = (index, value) => {
     const updatedQuestions = [...questions];
@@ -47,7 +72,7 @@ const QuizDialog = ({ isOpen, onClose, onAddQuiz }) => {
 
   const handleCorrectOptionChange = (questionIndex, index) => {
     const updatedQuestions = [...questions];
-    updatedQuestions[questionIndex].correctOptionIndex = index;
+    updatedQuestions[questionIndex].is_correct = index;
     setQuestions(updatedQuestions);
   };
 
@@ -77,7 +102,7 @@ const QuizDialog = ({ isOpen, onClose, onAddQuiz }) => {
             <TextField
               select
               label="Correct Option"
-              value={question.correctOptionIndex}
+              value={question.is_correct}
               onChange={(e) => handleCorrectOptionChange(index, parseInt(e.target.value))}
               fullWidth
               margin="normal"
