@@ -70,7 +70,14 @@ export default function SignIn() {
           console.log(userResponse.data[0].id);
         }
         else {
-          localStorage.setItem('student_id', response.data.user.student);
+          const userResponse = await axios.get(`http://127.0.0.1:8000/accounts/students/`, {
+            headers: {
+              Authorization: `Bearer ${response.data.access}`
+            }
+          });
+          console.log(userResponse);
+          localStorage.setItem('student_id', userResponse.data[0].id);
+          console.log(userResponse.data[0].id);
         }
 
         return (<div> DON DON DON</div>);
