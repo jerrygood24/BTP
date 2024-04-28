@@ -27,6 +27,29 @@ function SignUp() {
     name: '',
     photo: null,
   });
+
+  const handleEmailVerification = async (uidb64, token)  => {
+    console.log("Email verification initiated.");
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/accounts/activate/${uidb64}/${token}/`, {
+
+      });
+      if (response.status === 200) {
+        // Email verification successful
+        console.log("Email verification successful.");
+        const { access_token, user_id } = response.data;
+        console.log(response);
+            // Store access_token and user_id in localStorage or wherever needed
+            localStorage.setItem('access_token', access_token);
+            localStorage.setItem('user_id', user_id);
+      } else {
+        // Handle other response statuses
+      }
+    } catch (error) {
+      // Handle error
+      console.error("Error:", error.response.data);
+    }
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -38,6 +61,7 @@ function SignUp() {
       password2: data.get('password2'),
       role: data.get('role'),
       username: data.get('username'),
+      email: data.get('email'),
     };
     try {
       const response = await axios.post('http://127.0.0.1:8000/accounts/register/', dataToSend, {
@@ -46,16 +70,29 @@ function SignUp() {
         },
       });
 
-      if (response.status === 200) {
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('user_id', response.data.user_id);
-        // console.log("user id:", response.data)
-        console.log("Successfull signup ", response.data);
+      if (response.status === 201) {
+        // localStorage.setItem('access_token', response.data.access_token);
+        //     localStorage.setItem('user_id', response.data.user_id);
+        // localStorage.setItem('access_token', response.data.access_token);
+        // localStorage.setItem('user_id', response.data.user_id);
+        // // console.log("user id:", response.data)
+        // console.log("Successfull signup ", response.data);
+        // if (dataToSend.role === 'teacher') {
+        //   setShowTeacherDetails(true);
+        // }else if (dataToSend.role === 'student') {
+        //   setShowStudentDetails(true);
+        // }
+        // return (<div> Don DON Don</div>);
+        const { uidb64, token } = response.data;
+        console.log("uidb64:", uidb64 ,"token:", token);
+        console.log("Successful signup. Please check your email to verify your account.");
+        
         if (dataToSend.role === 'teacher') {
           setShowTeacherDetails(true);
         }else if (dataToSend.role === 'student') {
           setShowStudentDetails(true);
         }
+        handleEmailVerification(uidb64, token);
         return (<div> Don DON Don</div>);
       }
       else {
@@ -84,7 +121,7 @@ function SignUp() {
         },
       });
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         // Handle successful submission of teacher details
         localStorage.setItem('teacher_id', response.data.id);
         console.log("Teacher ID stored in localStorage:", localStorage.getItem('teacher_id'));
@@ -196,6 +233,16 @@ function SignUp() {
                   label="Last Name"
                   name="lastname"
                   autoComplete="lname"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  label="email"
+                  name="email"
+                  autoComplete="email@xyz.com"
                 />
               </Grid>
               <Grid item xs={12}>

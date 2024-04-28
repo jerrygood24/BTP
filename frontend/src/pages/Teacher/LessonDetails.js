@@ -36,6 +36,19 @@ const LessonDetails = ({ lessonDetails, setLessonDetails, subject, lessons }) =>
     setIsAddQuizDialogOpen(false);
   };
   console.log(lessons);
+  const generateEnrollmentLink = (lessonId) => {
+    axios.post(`http://127.0.0.1:8000/accounts/generate_enrollment_link/${lessonId}/`)
+      .then(function (response) {
+        // Handle successful response
+        console.log(response.data.enrollment_link);
+        const enrollmentLink = response.data.enrollment_link;
+        alert("Enrollment Link: " + enrollmentLink);
+      })
+      .catch(function (error) {
+        // Handle error
+        console.log(error);
+      });
+  };
   const handleAddQuizSubmit = (quizData, lessonIndex) => {
     // const subject = quizData["subject"];
     // const title = quizData["title"];
@@ -174,6 +187,7 @@ const LessonDetails = ({ lessonDetails, setLessonDetails, subject, lessons }) =>
                 </List>
                 <Button variant="outlined" onClick={() => handleAddChapter(lessonIndex)}>Add Chapter</Button>
                 <Button variant="outlined" onClick={handleAddQuiz}>Add Quiz</Button>
+                <Button variant="outlined" onClick={() => generateEnrollmentLink(lesson.id)}>Generate Enrollment Link</Button>
                 <QuizDialog isOpen={isAddQuizDialogOpen} onClose={handleCloseAddQuizDialog} onAddQuiz={handleAddQuizSubmit} title={lesson.title} lessonindex={lessonIndex} lessons={lessons} />
               </AccordionDetails>
             </Accordion>
