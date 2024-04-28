@@ -20,35 +20,12 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 const isTeacher = false;
-// const quiz_questions = {
-//   questions: [
-//     {
-//       id: 1,
-//       text: "What is the capital of France?",
-//       options: [
-//         { id: 1, text: "Paris", isCorrect: true },
-//         { id: 2, text: "London", isCorrect: false },
-//         { id: 3, text: "Berlin", isCorrect: false },
-//         { id: 4, text: "Rome", isCorrect: false },
-//       ],
-//     },
-//     {
-//       id: 2,
-//       text: "Which planet is known as the Red Planet?",
-//       options: [
-//         { id: 1, text: "Mars", isCorrect: true },
-//         { id: 2, text: "Venus", isCorrect: false },
-//         { id: 3, text: "Jupiter", isCorrect: false },
-//         { id: 4, text: "Saturn", isCorrect: false },
-//       ],
-//     },
-//   ],
-// };
 
 const StudentDashboard = () => {
   const [lessons, setLessons] = useState([]);
   const [selectedChapter, setSelectedChapter] = useState(null);
   const [expandedLesson, setExpandedLesson] = useState(null);
+  const [enrollmentLink, setEnrollmentLink] = useState("");
   const [anchorEl, setAnchorEl] = useState(null); // Declare anchorEl and setAnchorEl
   const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
   const [subchapterId, setSubchapterId] = useState(null);
@@ -57,17 +34,56 @@ const StudentDashboard = () => {
   useEffect(() => {
     fetchLessonsData();
   }, []);
+  // const fetchLessonsData = async () => {
+  //   try {
+  //     const lessonsResponse = await axios.get(`http://127.0.0.1:8000/accounts/lessons/`, {
+  //       headers: {
+  //         Authorization: `Bearer ${accessToken}`,
+  //       },
+  //     });
+  //     const lessonData = lessonsResponse.data;
+  //     console.log(lessonData);
+  //     const lessonsWithChapters = await Promise.all(lessonData.map(async (lesson) => {
+  //       console.log("lesson:", lesson);
+  //       const chaptersResponse = await axios.get(`http://127.0.0.1:8000/accounts/subchapters/?lesson=${lesson.id}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //       });
+  //       return { ...lesson, chapters: chaptersResponse.data };
+  //     }));
+  //     setLessons(lessonsWithChapters);
+  //     setQuizDialogStates(Array(lessonsWithChapters.length).fill(false));
+  //     console.log("Lesson with Chapters:", lessonsWithChapters);
+  //   } catch (error) {
+  //     console.error("Error fetching lesson details:", error);
+  //   }
+  // };
   const fetchLessonsData = async () => {
     try {
-      const lessonsResponse = await axios.get(`http://127.0.0.1:8000/accounts/lessons/`, {
+      // Fetch the logged-in student
+      const student_id = localStorage.getItem("student_id");
+      if (!student_id) {
+        console.error("Student ID not found in local storage");
+        return;
+      }
+      // const studentResponse = await axios.get(`http://127.0.0.1:8000/accounts/students/`, {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`,
+      //   },
+      // });
+      // const studentData = studentResponse.data;
+      // console.log("Student Data:", studentData);
+      // Fetch lessons associated with the student
+      const enrolledLessonsResponse = await axios.get(`http://127.0.0.1:8000/accounts/lessons/?students=${student_id}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      const lessonData = lessonsResponse.data;
-      console.log(lessonData);
-      const lessonsWithChapters = await Promise.all(lessonData.map(async (lesson) => {
-        console.log("lesson:", lesson);
+      const enrolledLessonsData = enrolledLessonsResponse.data;
+      console.log("Enrolled Lessons Data:", enrolledLessonsData);
+      // Fetch chapters for each enrolled lesson
+      const lessonsWithChapters = await Promise.all(enrolledLessonsData.map(async (lesson) => {
         const chaptersResponse = await axios.get(`http://127.0.0.1:8000/accounts/subchapters/?lesson=${lesson.id}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -75,6 +91,7 @@ const StudentDashboard = () => {
         });
         return { ...lesson, chapters: chaptersResponse.data };
       }));
+
       setLessons(lessonsWithChapters);
       setQuizDialogStates(Array(lessonsWithChapters.length).fill(false));
       console.log("Lesson with Chapters:", lessonsWithChapters);
@@ -82,6 +99,27 @@ const StudentDashboard = () => {
       console.error("Error fetching lesson details:", error);
     }
   };
+
+  const handleEnroll = async () => {
+    try {
+        const student_id = localStorage.getItem("student_id");
+        const enrollmentLink = document.querySelector('input[type="text"]').value; // Get the value from the input field
+        const response = await axios.post(
+            "http://127.0.0.1:8000/accounts/enroll/",
+            { enrollment_link: enrollmentLink, student_id: student_id },
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+        console.log(response.data);
+        // Optionally, you can update the lessons state to reflect the enrollment status
+    } catch (error) {
+        console.error("Error enrolling in lesson:", error);
+    }
+};
 
   const handleChapterClick = (lessonIndex, chapterIndex) => {
     const selectedLesson = lessons[lessonIndex];
@@ -114,6 +152,11 @@ const StudentDashboard = () => {
 
   return (
     <>
+      <div style={{ marginLeft: "20px" }}>
+        <Typography variant="h6">Enroll in a Lesson</Typography>
+        <input type="text" placeholder="Enter Enrollment Link" />
+        <Button variant="contained" onClick={handleEnroll}>Enroll</Button>
+      </div>
       <div style={{ display: "flex", margin: "100px" }}>
 
         <div style={{ width: "15vw" }}>
@@ -181,8 +224,10 @@ const StudentDashboard = () => {
                 <Quizstudents inclose={quizDialogStates[lessonIndex]} onclose={() => handleCloseAddQuizDialog(lessonIndex)} title={lesson.lessonTitle} lessons={lessons} lessonindex={lessonIndex} />
               </AccordionDetails>
             </Accordion>
+
           ))}
         </div>
+
         <Box
           style={{
             flex: 1,
