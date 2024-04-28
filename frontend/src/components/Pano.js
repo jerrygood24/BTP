@@ -92,10 +92,10 @@ const Pano = ({ subchapterId, isTeacher }) => {
   };
   const handleSceneMovement = (direction) => {
     if (!viewer) return; // Ensure viewer is available
-  
+
     const view = viewer.view();
     if (!view) return; // Ensure view is available
-  
+
     let angle = Math.PI / 36; // 5 degrees in radians
     if (direction === "zoom-in" || direction === "zoom-out") {
       angle = 0.1; // Adjust zooming speed
@@ -411,6 +411,22 @@ const Pano = ({ subchapterId, isTeacher }) => {
               {isAddHotspotMode ? <Clear /> : <Add />}
             </Button>
           )}
+          <div className="dropdown-container">
+            {scenes.length === 0 ? (
+              <p>Loading scenes...</p>
+            ) : (
+              <select onChange={(e) => { switchScene(e.target.value); setCurrentScene(e.target.value); }}>
+                {scenes.map((scene) => {
+                  const sceneId = String(scene.id);
+                  return (
+                    <option key={sceneId} value={sceneId}>
+                      {sceneId.charAt(0).toUpperCase() + sceneId.slice(1)}
+                    </option>
+                  );
+                })}
+              </select>
+            )}
+          </div>
         </div>
       </div>
       {/* {scenes.length === 0 ? (
