@@ -16,6 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TeacherDashboard from './TeacherDashboard'
 import StudentDashboard from './StudentDashboard';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -33,8 +34,9 @@ function Copyright(props) {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function SignIn() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+export default function SignIn({ isLoggedIn, setIsLoggedIn }) {
+  const navigate = useNavigate();
+  // const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isTeacher, setIsTeacher] = useState(false);
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -70,11 +72,12 @@ export default function SignIn() {
           console.log(userResponse);
           localStorage.setItem('teacher_id', userResponse.data[0].id);
           console.log(userResponse.data[0].id);
+          navigate('/teacherdashboard');
         }
         else {
           localStorage.setItem('student_id', response.data.user.student);
+          navigate('/studentdashboard');
         }
-
         return (<div> DON DON DON</div>);
         // response.json().then(data => {
         //   const token = data.access;
@@ -92,15 +95,7 @@ export default function SignIn() {
       // Handle network error 
     }
   };
-  if (isLoggedIn && isTeacher) {
-    return (
-      <TeacherDashboard />
-    );
-  } else if (isLoggedIn && !isTeacher) {
-    return (
-      <StudentDashboard />
-    );
-  }
+  
 
 
   return (
@@ -156,7 +151,7 @@ export default function SignIn() {
             >
               Sign In
             </Button>
-            {isLoggedIn && <div>You have successfully logged in.</div>}
+            {/* {isLoggedIn && <div>You have successfully logged in.</div>} */}
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">

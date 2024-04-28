@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 const pages = ['Home', 'Repository', 'About', 'Contact', 'FileUpload'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
   const navigate = useNavigate();
 
   const handleRedirect = (page) => {
@@ -46,6 +46,12 @@ function ResponsiveAppBar() {
 
   const handleLogout = () => {
     // Implement your logout logic here
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('teacher_id');
+    localStorage.removeItem('student_id');
+    setIsLoggedIn(false);
+    navigate('/login'); // Redirect to login page after logout
     setIsAuthenticated(false);
     handleCloseUserMenu();
   };
@@ -156,7 +162,7 @@ function ResponsiveAppBar() {
 
           <Box sx={{ flexGrow: 0 }}>
             {/* Conditionally render avatar and settings menu */}
-            {isAuthenticated ? (
+            {isLoggedIn ? (
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -180,20 +186,14 @@ function ResponsiveAppBar() {
                   onClose={handleCloseUserMenu}
                 >
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <MenuItem key={setting} onClick={handleCloseUserMenu} >
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>
                   ))}
                 </Menu>
-
-
-
-
               </>
             ) : (
               // Show login and signup buttons if not authenticated
-
-
               <Box display="flex" alignItems="center">
                 <Button
                   onClick={() => navigate('/login')}
