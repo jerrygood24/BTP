@@ -17,7 +17,7 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <Router>
-      <Navbar isLoggedIn={isLoggedIn}/>
+      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
       <Box sx={{ paddingTop: '64px' }}></Box>
       <Routes>
         <Route exact path="/" element={<Home />} />

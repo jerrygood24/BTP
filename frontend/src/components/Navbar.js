@@ -6,7 +6,7 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigate } from 'react-router-dom';
 
 const pages = ['Home', 'Repository', 'About', 'Contact', 'FileUpload'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = ['Logout'];
 
 function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
   const navigate = useNavigate();
@@ -44,17 +44,35 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
     handleCloseNavMenu();
   };
 
+
   const handleLogout = () => {
-    // Implement your logout logic here
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('teacher_id');
     localStorage.removeItem('student_id');
     setIsLoggedIn(false);
     navigate('/login'); // Redirect to login page after logout
-    setIsAuthenticated(false);
-    handleCloseUserMenu();
+    handleCloseUserMenu(); // Close the menu after logout
   };
+
+  const handleProfileClick = () => {
+    // Implement profile logic here
+    navigate('/profile'); // Example navigation to profile page
+    handleCloseUserMenu(); // Close the menu after clicking profile
+  };
+
+  const handleAccountClick = () => {
+    // Implement account logic here
+    navigate('/account'); // Example navigation to account page
+    handleCloseUserMenu(); // Close the menu after clicking account
+  };
+
+  const handleDashboardClick = () => {
+    // Implement dashboard logic here
+    navigate('/dashboard'); // Example navigation to dashboard page
+    handleCloseUserMenu(); // Close the menu after clicking dashboard
+  };
+
 
   return (
     <AppBar position="fixed">
@@ -186,7 +204,7 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
                   onClose={handleCloseUserMenu}
                 >
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu} >
+                    <MenuItem key={setting} onClick={handleLogout} >
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>
                   ))}
