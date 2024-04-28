@@ -13,7 +13,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-
+import TeacherDashboard from './TeacherDashboard'
+import StudentDashboard from './StudentDashboard';
 import axios from 'axios';
 function Copyright(props) {
   return (
@@ -34,7 +35,7 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  const [isTeacher, setIsTeacher] = useState(false);
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -60,6 +61,7 @@ export default function SignIn() {
         // console.log(response.data.user.pk);
         console.log(response.data);
         if (response.data.user.role === 'teacher') {
+          setIsTeacher(true);
           const userResponse = await axios.get(`http://127.0.0.1:8000/accounts/teachers/`, {
             headers: {
               Authorization: `Bearer ${response.data.access}`
@@ -90,11 +92,22 @@ export default function SignIn() {
       // Handle network error 
     }
   };
+  if (isLoggedIn && isTeacher) {
+    return (
+      <TeacherDashboard />
+    );
+  } else if (isLoggedIn && !isTeacher) {
+    return (
+      <StudentDashboard />
+    );
+  }
 
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
+        {/* {isLoggedIn && isTeacher && <Redirect to="/teacherdashboard" />} Redirect to teacher dashboard if user is teacher
+        {isLoggedIn && !isTeacher && <Redirect to="/studentdashboard" />} */}
         <CssBaseline />
         <Box
           sx={{
