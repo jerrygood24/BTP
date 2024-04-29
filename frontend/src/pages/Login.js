@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,6 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TeacherDashboard from './TeacherDashboard'
 import StudentDashboard from './StudentDashboard';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 function Copyright(props) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -33,9 +34,16 @@ function Copyright(props) {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function SignIn() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isTeacher, setIsTeacher] = useState(false);
+export default function SignIn({ isLoggedIn, setIsLoggedIn, setIsTeacher }) {
+  const navigate = useNavigate();
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/'); // Redirect to home page if already logged in
+    }
+  }, [isLoggedIn, navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -48,6 +56,7 @@ export default function SignIn() {
 
       if (response.status === 200) {
         setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', true);
         //set the access_token in the localstorage
         // response.json().then(data => {
         //   const token = data.access;
@@ -70,11 +79,22 @@ export default function SignIn() {
           console.log(userResponse);
           localStorage.setItem('teacher_id', userResponse.data[0].id);
           console.log(userResponse.data[0].id);
+          navigate('/teacherdashboard');
         }
         else {
-          localStorage.setItem('student_id', response.data.user.student);
+          const userResponse = await axios.get(`http://127.0.0.1:8000/accounts/students/`, {
+            headers: {
+              Authorization: `Bearer ${response.data.access}`
+            }
+          });
+          console.log(userResponse);
+          localStorage.setItem('student_id', userResponse.data[0].id);
+          console.log(userResponse.data[0].id);
+          // localStorage.setItem('student_id', response.data.user.student);
+          // localStorage.setItem('student_id', response.data.user.student);
+          setIsTeacher(false);
+          navigate('/studentdashboard');
         }
-
         return (<div> DON DON DON</div>);
         // response.json().then(data => {
         //   const token = data.access;
@@ -92,15 +112,7 @@ export default function SignIn() {
       // Handle network error 
     }
   };
-  if (isLoggedIn && isTeacher) {
-    return (
-      <TeacherDashboard />
-    );
-  } else if (isLoggedIn && !isTeacher) {
-    return (
-      <StudentDashboard />
-    );
-  }
+  
 
 
   return (
@@ -156,7 +168,7 @@ export default function SignIn() {
             >
               Sign In
             </Button>
-            {isLoggedIn && <div>You have successfully logged in.</div>}
+            {/* {isLoggedIn && <div>You have successfully logged in.</div>} */}
             <Grid container>
               <Grid item xs>
                 <Link href="#" variant="body2">

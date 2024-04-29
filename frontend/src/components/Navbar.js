@@ -5,10 +5,10 @@ import Avatar from '@mui/material/Avatar';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Home', 'Repository', 'About', 'Contact', 'FileUpload'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const pages = ['Home', 'About', 'Contact'];
+const settings = ['Logout'];
 
-function ResponsiveAppBar() {
+function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn, isTeacher }) {
   const navigate = useNavigate();
 
   const handleRedirect = (page) => {
@@ -19,7 +19,6 @@ function ResponsiveAppBar() {
       navigate(`/${page.toLowerCase()}`);
   };
 
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false); // State to track user authentication
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -38,17 +37,24 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
-  const handleLogin = () => {
-    // Implement your login logic here
-    setIsAuthenticated(true);
-    handleCloseNavMenu();
-  };
-
   const handleLogout = () => {
-    // Implement your logout logic here
-    setIsAuthenticated(false);
-    handleCloseUserMenu();
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('teacher_id');
+    localStorage.removeItem('student_id');
+    setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn'); 
+    navigate('/login'); // Redirect to login page after logout
+    handleCloseUserMenu(); // Close the menu after logout
   };
+  const handleDashboardClick = () => {
+    if (isTeacher) {
+      navigate('/teacherdashboard');
+    } else {
+      navigate('/studentdashboard');
+    }
+    handleCloseUserMenu();
+  }; 
 
   return (
     <AppBar position="fixed">
@@ -140,7 +146,7 @@ function ResponsiveAppBar() {
                 </MenuItem>
               </Button>
             ))}
-            <Button
+            {/* <Button
               onClick={() => navigate('/teacherdashboard')}
               sx={{ my: 2, color: 'white' }}
             >
@@ -151,12 +157,12 @@ function ResponsiveAppBar() {
               sx={{ my: 2, color: 'white' }}
             >
               <Typography textAlign="center">Student</Typography>
-            </Button>
+            </Button> */}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
             {/* Conditionally render avatar and settings menu */}
-            {isAuthenticated ? (
+            {isLoggedIn ? (
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -179,21 +185,18 @@ function ResponsiveAppBar() {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
+                  <MenuItem onClick={handleDashboardClick}>
+                    <Typography textAlign="center">Dashboard</Typography>
+                  </MenuItem>
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                    <MenuItem key={setting} onClick={setting === 'Logout' ? handleLogout : handleCloseUserMenu}>
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>
                   ))}
                 </Menu>
-
-
-
-
               </>
             ) : (
               // Show login and signup buttons if not authenticated
-
-
               <Box display="flex" alignItems="center">
                 <Button
                   onClick={() => navigate('/login')}

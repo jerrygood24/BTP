@@ -20,6 +20,7 @@ function SignUp() {
     name: '',
     designation: '',
     subject: '',
+    affiliation: '',
     photo: null,
   });
   const [studentDetails, setStudentDetails] = useState({
@@ -86,8 +87,7 @@ function SignUp() {
         const { uidb64, token } = response.data;
         console.log("uidb64:", uidb64 ,"token:", token);
         console.log("Successful signup. Please check your email to verify your account.");
-        alert("Signup Successfull");
-        
+        alert("Successful signup. Please check your email to verify your account.");
         if (dataToSend.role === 'teacher') {
           setShowTeacherDetails(true);
         }else if (dataToSend.role === 'student') {
@@ -111,6 +111,7 @@ function SignUp() {
     formData.append('user', userId);
     formData.append('name', teacherDetails.name);
     formData.append('designation', teacherDetails.designation);
+    formData.append('affiliation', teacherDetails.affiliation);
     formData.append('subject', teacherDetails.subject);
     formData.append('photo', teacherDetails.photo);
 
@@ -312,6 +313,15 @@ function SignUp() {
                 label="Name"
                 name="name"
                 value={teacherDetails.name}
+                onChange={handleTeacherInputChange}
+              />
+              <TextField
+                required
+                fullWidth
+                id="affiliation"
+                label="Affiliation"
+                name="affiliation"
+                value={teacherDetails.affiliation}
                 onChange={handleTeacherInputChange}
               />
               <TextField
