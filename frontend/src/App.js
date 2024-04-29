@@ -18,11 +18,12 @@ const App = () => {
   const [isTeacher, setIsTeacher] = useState(false);
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    setIsLoggedIn(isLoggedIn === 'true');
+    const isLoggedIn = localStorage.getItem('isLoggedIn') ==='true';
+    setIsLoggedIn(isLoggedIn);
 
-    const isTeacher = localStorage.getItem('isTeacher');
-    setIsTeacher(isTeacher === 'true');
+    // Check if the user is a teacher
+    const role = localStorage.getItem('role');
+    setIsTeacher(role === 'teacher');
   }, []);
   return (
     <Router>
@@ -35,7 +36,7 @@ const App = () => {
         <Route path="/contact" element={<Contact />} />
         {!isLoggedIn && <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} setIsTeacher={setIsTeacher} />} />}
         
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signup" element={<SignUp setIsLoggedIn={setIsLoggedIn} setIsTeacher={setIsTeacher} />} />
         {/* <Route path="/fileupload" element={<FileUpload />} /> */}
         <Route path="/teacherdashboard" element={<TeacherDashboard />} />
         <Route path="/studentdashboard" element={<StudentDashboard />} />

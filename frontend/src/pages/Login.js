@@ -68,6 +68,9 @@ export default function SignIn({ isLoggedIn, setIsLoggedIn, setIsTeacher }) {
         localStorage.setItem('access_token', response.data.access);
         localStorage.setItem('user_id', response.data.user.pk);
         // console.log(response.data.user.pk);
+        const role = response.data.user.role;
+        localStorage.setItem('role', role);
+        setIsTeacher(role === 'teacher');
         console.log(response.data);
         if (response.data.user.role === 'teacher') {
           setIsTeacher(true);

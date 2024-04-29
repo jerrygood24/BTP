@@ -11,8 +11,10 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-function SignUp() {
+function SignUp({ isLoggedIn, setIsLoggedIn, setIsTeacher, isTeacher }) {
+  const navigate = useNavigate();
   const [showTeacherDetails, setShowTeacherDetails] = useState(false);
   const [showStudentDetails, setShowStudentDetails] = useState(false);
   const [teacherDetails, setTeacherDetails] = useState({
@@ -72,6 +74,8 @@ function SignUp() {
       });
 
       if (response.status === 201) {
+        localStorage.setItem('isLoggedIn', true);
+        localStorage.setItem('role', dataToSend.role);
         // localStorage.setItem('access_token', response.data.access_token);
         //     localStorage.setItem('user_id', response.data.user_id);
         // localStorage.setItem('access_token', response.data.access_token);
@@ -88,12 +92,17 @@ function SignUp() {
         console.log("uidb64:", uidb64 ,"token:", token);
         console.log("Successful signup. Please check your email to verify your account.");
         alert("Successful signup. Please check your email to verify your account.");
+        
+        setIsLoggedIn(true);
         if (dataToSend.role === 'teacher') {
           setShowTeacherDetails(true);
+          setIsTeacher(true);
         }else if (dataToSend.role === 'student') {
           setShowStudentDetails(true);
         }
         handleEmailVerification(uidb64, token);
+        
+        
         return (<div> Don DON Don</div>);
       }
       else {
@@ -128,6 +137,8 @@ function SignUp() {
         localStorage.setItem('teacher_id', response.data.id);
         console.log("Teacher ID stored in localStorage:", localStorage.getItem('teacher_id'));
         console.log("Teacher details submitted successfully");
+        setIsTeacher(true);
+        navigate('/teacherdashboard');
       } else {
         // Handle other response statuses
       }
@@ -155,6 +166,8 @@ function SignUp() {
         localStorage.setItem('student_id', response.data.id);
         console.log("Student ID stored in localStorage:", localStorage.getItem('student_id'));
         console.log("Student details submitted successfully");
+        setIsTeacher(false);
+        navigate('/studentdashboard');
       } else {
         // Handle other response statuses
       }
