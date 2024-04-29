@@ -86,6 +86,7 @@ function SignUp() {
         const { uidb64, token } = response.data;
         console.log("uidb64:", uidb64 ,"token:", token);
         console.log("Successful signup. Please check your email to verify your account.");
+        alert("Signup Successfull");
         
         if (dataToSend.role === 'teacher') {
           setShowTeacherDetails(true);
@@ -121,7 +122,7 @@ function SignUp() {
         },
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         // Handle successful submission of teacher details
         localStorage.setItem('teacher_id', response.data.id);
         console.log("Teacher ID stored in localStorage:", localStorage.getItem('teacher_id'));

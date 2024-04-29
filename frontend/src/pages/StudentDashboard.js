@@ -20,7 +20,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 const isTeacher = false;
-
+let studentdata;
 const StudentDashboard = () => {
   const [lessons, setLessons] = useState([]);
   const [selectedChapter, setSelectedChapter] = useState(null);
@@ -59,10 +59,19 @@ const StudentDashboard = () => {
   //     console.error("Error fetching lesson details:", error);
   //   }
   // };
+  const fetchstudentdetails = async () => {
+    const student_id = localStorage.getItem("student_id");
+    studentdata = await axios.get(`http://127.0.0.1:8000/accounts/students/${student_id}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  }
   const fetchLessonsData = async () => {
     try {
       // Fetch the logged-in student
       const student_id = localStorage.getItem("student_id");
+      console.log(student_id);
       if (!student_id) {
         console.error("Student ID not found in local storage");
         return;
@@ -102,24 +111,24 @@ const StudentDashboard = () => {
 
   const handleEnroll = async () => {
     try {
-        const student_id = localStorage.getItem("student_id");
-        const enrollmentLink = document.querySelector('input[type="text"]').value; // Get the value from the input field
-        const response = await axios.post(
-            "http://127.0.0.1:8000/accounts/enroll/",
-            { enrollment_link: enrollmentLink, student_id: student_id },
-            {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                    "Content-Type": "application/json",
-                },
-            }
-        );
-        console.log(response.data);
-        // Optionally, you can update the lessons state to reflect the enrollment status
+      const student_id = localStorage.getItem("student_id");
+      const enrollmentLink = document.querySelector('input[type="text"]').value; // Get the value from the input field
+      const response = await axios.post(
+        "http://127.0.0.1:8000/accounts/enroll/",
+        { enrollment_link: enrollmentLink, student_id: student_id },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response.data);
+      // Optionally, you can update the lessons state to reflect the enrollment status
     } catch (error) {
-        console.error("Error enrolling in lesson:", error);
+      console.error("Error enrolling in lesson:", error);
     }
-};
+  };
 
   const handleChapterClick = (lessonIndex, chapterIndex) => {
     const selectedLesson = lessons[lessonIndex];
@@ -157,6 +166,22 @@ const StudentDashboard = () => {
         <input type="text" placeholder="Enter Enrollment Link" />
         <Button variant="contained" onClick={handleEnroll}>Enroll</Button>
       </div>
+      {/* <Box sx={{ m: 2, p: 2, height: 300, width: 200, border: 2 }} >
+      {studentdata ? (
+        <>
+          <Box display="flex" flexDirection="column" mt={2}>
+            <Box display={"flex"} direction={"row"} justifyContent={"center"} sx={{ m: 2 }}>
+              <Avatar>A</Avatar>
+            </Box>
+
+            <Box display={"flex"} direction={"row"} justifyContent={"space-between"}>
+              <Typography variant="h6">{data.name}</Typography>
+              <IconButton onClick={() => handleEditClick("Name")}>
+                <EditIcon />
+              </IconButton>
+            </Box>
+            </> ) : ()}
+            </Box> */}
       <div style={{ display: "flex", margin: "100px" }}>
 
         <div style={{ width: "15vw" }}>
@@ -168,45 +193,6 @@ const StudentDashboard = () => {
             </IconButton>
 
           </Box>
-
-          {/* {lessons && lessons.map((lesson, lessonIndex) => (
-            <Accordion
-              key={lessonIndex}
-              expanded={lessonIndex === expandedLesson}
-              onChange={() =>
-                setExpandedLesson(
-                  lessonIndex === expandedLesson ? null : lessonIndex
-                )
-              }
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon />}
-                aria-controls={`lesson-${lessonIndex}-content`}
-                id={`lesson-${lessonIndex}-header`}
-              >
-                <Typography>{lesson.title}</Typography>
-              </AccordionSummary>
-
-              <AccordionDetails>
-                <List>
-                  {lesson.chapters && lesson.chapters.map((chapter, chapterIndex) => (
-                    <ListItem
-                      key={chapterIndex}
-                      onClick={() =>
-                        handleChapterClick(lessonIndex, chapterIndex)
-                      }
-                    >
-                      <Button variant="contained" onClick={(e) => setAnchorEl(e.currentTarget)}>
-                        {chapter.title}
-                      </Button>
-                    </ListItem>
-                  ))}
-                </List>
-                <Button variant="outlined" onClick={handleAddQuiz}>Take Quiz</Button>
-                <Quizstudents inclose={isAddQuizDialogOpen} onclose={handleCloseAddQuizDialog} quiz={quiz_questions} title={lesson.lessonTitle} lessons={lessons} lessonindex={lessonIndex} />
-              </AccordionDetails>
-            </Accordion>
-          ))} */}
           {lessons && lessons.map((lesson, lessonIndex) => (
             <Accordion key={lessonIndex} expanded={lessonIndex === expandedLesson} onChange={() => setExpandedLesson(lessonIndex === expandedLesson ? null : lessonIndex)}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`lesson-${lessonIndex}-content`} id={`lesson-${lessonIndex}-header`}>
