@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import "../../css/Repository.css";
 import FileUpload from "../../components/FileUpload";
 import Pano from "../../components/Pano";
+import "../Teacher/LessonDetails.css";
+import ImageSuggestion from "../../components/ImageSuggestion"; 
 import {
   Accordion,
   AccordionSummary,
@@ -14,6 +16,7 @@ import {
   Box,
   Menu,
   MenuItem,
+  TextField,  // Add TextField for search
 } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import QuizDialog from "./Quiz";
@@ -28,6 +31,42 @@ const LessonDetails = ({ lessonDetails, setLessonDetails, subject, lessons }) =>
   const [isAddQuizDialogOpen, setIsAddQuizDialogOpen] = useState(false);
   const [subchapterId, setSubchapterId] = useState(null);
   const [scenes, setScenes] = useState([]);
+  const [imageSuggestions, setImageSuggestions] = useState([]);
+
+  useEffect(() => {
+    // Fetch scene IDs from backend
+    const fetchSceneIds = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/accounts/scenes/");
+        const sceneIds = response.data.map((scene) => scene.id);
+        console.log("sceneIds", sceneIds);
+        setScenes(sceneIds);
+      } catch (error) {
+        console.error("Error fetching scene IDs:", error);
+      }
+    };
+
+    fetchSceneIds();
+  }, []);
+
+  useEffect(() => {
+    // Fetch recommended images based on scene IDs
+    if (scenes.length > 0) {
+      const fetchRecommendedImages = async () => {
+        try {
+          const sceneId = scenes[0]; // For demonstration, using the first scene ID
+          const response = await axios.get(`http://127.0.0.1:8000/accounts/scenes/?scene_id=${sceneId}`);
+          setImageSuggestions(response.data);
+          console.log("response.data", response.data);
+        } catch (error) {
+          console.error("Error fetching recommended images:", error);
+        }
+      };
+
+      fetchRecommendedImages();
+    }
+  }, [scenes]);
+
   const handleAddQuiz = () => {
     setIsAddQuizDialogOpen(true);
   };
@@ -151,7 +190,12 @@ const LessonDetails = ({ lessonDetails, setLessonDetails, subject, lessons }) =>
               <AddBoxIcon />
             </IconButton>
           </Box>
-
+          
+          <div className="image-suggestions">
+            <Typography variant="h6">Recommended Images:</Typography>
+            <ImageSuggestion images={imageSuggestions} />
+          </div>
+  
           {lessonDetails && lessonDetails.map((lesson, lessonIndex) => (
             <Accordion
               key={lessonIndex}

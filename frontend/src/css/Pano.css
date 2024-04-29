@@ -107,6 +107,11 @@
     align-items: center;
   }
   
+  .nav-right .dropdown-container {
+    border: 1px solid #3a88cc;
+    border-radius: 4px;
+    background-color: #ffffff;
+  }
   
   .active {
     background-color: green; /* Change color for active scene button */
