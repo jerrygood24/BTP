@@ -68,7 +68,8 @@ const StudentDashboard = () => {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      setdata(studentdata.response.data);
+      console.log(studentdata);
+      setdata(studentdata.data);
       console.log(data);
     }
     catch (error) {
@@ -175,7 +176,7 @@ const StudentDashboard = () => {
         <Button variant="contained" onClick={handleEnroll}>Enroll</Button>
       </div>
       <div style={{ display: 'flex' }}>
-        <Box sx={{ m: 2, p: 2, height: 300, width: 200, border: 2 }} >
+        <Box sx={{ m: 2, p: 2, height: 200, width: 200, border: 2 }} >
           {data ? (
             <>
               <Box display="flex" flexDirection="column" mt={2}>
@@ -183,8 +184,8 @@ const StudentDashboard = () => {
                   <img src={data.photo} alt="User Photo" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
                 </Box>
 
-                <Box display={"flex"} direction={"row"} justifyContent={"space-between"}>
-                  <Typography variant="h6">{data.name}</Typography>
+                <Box display={"flex"} direction={"row"} justifyContent={"center"}>
+                  <Typography variant="h6">Name : {data.name}</Typography>
                 </Box>
               </Box>
             </>) : (<Typography>Loading...</Typography>)}
