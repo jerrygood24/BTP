@@ -101,8 +101,8 @@ const TeacherDetails = ({ teacherId }) => {
       {data ? (
         <>
           <Box display="flex" flexDirection="column" mt={2}>
-            <Box display={"flex"} direction={"row"} justifyContent={"center"} sx={{ m: 2 }}>
-              <Avatar>A</Avatar>
+            <Box display="flex" direction="row" justifyContent="center" sx={{ m: 2 }}>
+              <img src={data.photo} alt="User Photo" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
             </Box>
 
             <Box display={"flex"} direction={"row"} justifyContent={"space-between"}>

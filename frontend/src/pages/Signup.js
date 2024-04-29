@@ -139,6 +139,7 @@ function SignUp({ isLoggedIn, setIsLoggedIn, setIsTeacher, isTeacher }) {
         console.log("Teacher details submitted successfully");
         setIsTeacher(true);
         navigate('/teacherdashboard');
+        alert("Signup Successfull")
       } else {
         // Handle other response statuses
       }
@@ -168,6 +169,7 @@ function SignUp({ isLoggedIn, setIsLoggedIn, setIsTeacher, isTeacher }) {
         console.log("Student details submitted successfully");
         setIsTeacher(false);
         navigate('/studentdashboard');
+        alert("Signup Successfull");
       } else {
         // Handle other response statuses
       }
