@@ -8,11 +8,15 @@ import axiosInstance from '../utils/api';
 
 function FileUpload({ subchapterId }) {
   const [selectedFile, setSelectedFile] = useState(null);
-  const [name,setName] = useState("")
+  const [name,setName] = useState("");
+  const [uploadComplete, setUploadComplete] = useState(false);
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
     setName(e.target.files[0].name);
+    setUploadComplete(false); // Reset upload complete message on file change
   };
+  
+  
   // const handleNameChange = (e) => {
   //   setName(e.target.value);
   // };
@@ -21,6 +25,7 @@ function FileUpload({ subchapterId }) {
     const droppedFile = e.dataTransfer.files[0];
     setSelectedFile(droppedFile);
     setName(droppedFile.name);
+    setUploadComplete(false); // Reset upload complete message on file change
   };
 
   const handleDragOver = (e) => {
@@ -43,7 +48,15 @@ function FileUpload({ subchapterId }) {
         })
         .then((response) => {
           console.log('File uploaded successfully:', response.data);
+          // Clear the selected file after successful upload
+          setSelectedFile(null);
+          setName("");
+          setUploadComplete(true);
 
+          // Hide the upload complete message after 5 seconds
+          setTimeout(() => {
+            setUploadComplete(false);
+          }, 5000);
         })
         .catch((error) => {
           console.error('Error uploading file:', error);
@@ -96,6 +109,7 @@ function FileUpload({ subchapterId }) {
           </Box>
         </label>
         {selectedFile && <div>Selected File: {selectedFile.name}</div>}
+        {uploadComplete && <div>Upload complete!</div>}
       </div>
       {/* <input
         type="text"

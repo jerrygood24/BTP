@@ -132,7 +132,9 @@ const StudentDashboard = () => {
         }
       );
       console.log(response.data);
+      document.querySelector('input[type="text"]').value = ''; // Clear the input field
       // Optionally, you can update the lessons state to reflect the enrollment status
+      fetchLessonsData();
     } catch (error) {
       console.error("Error enrolling in lesson:", error);
     }
@@ -169,8 +171,8 @@ const StudentDashboard = () => {
 
   return (
     <>
-      <div style={{ margin: "20px" }}>
-        <Typography variant="h6">Enroll in a Lesson</Typography>
+      <div style={{ margin: "20px auto", textAlign: "center" }}>
+        <Typography variant="h4">Enroll in a Lesson</Typography>
         <input type="text" placeholder="Enter Enrollment Link" />
         <Button variant="contained" onClick={handleEnroll}>Enroll</Button>
       </div>
