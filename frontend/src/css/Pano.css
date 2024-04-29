@@ -1,7 +1,22 @@
+.ReactModalPortal{
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+  z-index: 9999; /* Ensure the modal is above everything else */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* Center the iframe inside the modal */
+.ReactModalPortal iframe {
+  width: 100%; /* Adjust width as needed */
+  height: 100%; /* Adjust height as needed */
+}
 .pano-box {
     width: 800px; /* Adjust as needed */
     height: 500px; /* Adjust as needed */
-    overflow: visible;
+    /* overflow: visible; */
     cursor: default;
     position: relative;
   }
@@ -13,6 +28,7 @@
     cursor: pointer;
   }
   .hotspot {
+    position: absolute;
     background-color: rgba(255, 255, 255, 0.8);
     padding: 10px;
     border-radius: 5px;
@@ -31,6 +47,8 @@
   #pano {
     width: 100%;
     height: 100%;
+    position: relative; /* Ensure the panorama container is positioned */
+    z-index: 1
   }
   button {
     display: inline-block;
@@ -47,7 +65,7 @@
     cursor: pointer; /* Show a pointer on hover */
     visibility: visible; /* Make sure buttons are visible */
     opacity: 1; /* Full opacity */
-    z-index: 100; /* Ensure buttons are on top */
+    z-index: 5; /* Ensure buttons are on top */
   }
   .button-container {
     /* z-index: 10; */
@@ -66,13 +84,13 @@
   .parent-element {
     overflow: visible;
 }
-  #pano canvas {
+  /* #pano canvas {
     width: 100%;
     height: 100%;
     position: absolute;
     top: 0;
     left: 0;
-  }
+  } */
 
   
   #pano > div:first-child {
@@ -86,11 +104,11 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    position: absolute;
+    /* position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 100; /* Ensure the nav bar is on top */
+    z-index: 2; */
   }
   
   .nav-left {

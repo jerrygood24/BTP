@@ -7,6 +7,8 @@ import {
   ArrowBack, ArrowForward, ZoomIn, ZoomOut,
 } from "@mui/icons-material";
 import Modal from 'react-modal';
+import imgaudio from '../data/sound-png-35757.png';
+import imgvideo from '../data/video-icon-8027.png';
 
 Modal.setAppElement('#root');
 const Pano = ({ subchapterId, isTeacher }) => {
@@ -152,22 +154,26 @@ const Pano = ({ subchapterId, isTeacher }) => {
           textElement.innerText = hotspot.text;
           element.appendChild(textElement);
           if (hotspot.video_url) {
-            var linkElement = document.createElement('a');
-            linkElement.href = '#';
-            linkElement.innerText = ' View Video'; // Text for the link
-            linkElement.onclick = (e) => {
+            var videoImg = document.createElement('img');
+            videoImg.src = imgvideo; // Replace 'audio_icon.png' with the path to your audio icon image
+            videoImg.alt = 'Audio Icon'; // Optional: provide alt text for accessibility
+            videoImg.style.width = '32px'; // Adjust width as needed
+            videoImg.style.height = '32px'; // Adjust height as needed
+            videoImg.onclick = (e) => {
               e.preventDefault(); // Prevent the link from navigating
               setSelectedVideoUrl(hotspot.video_url);
               setModalIsOpen(true);
             };
-            element.appendChild(linkElement);
+            element.appendChild(videoImg);
           }
           if (hotspot.audio) {
             console.log("Audio file is there in gian ho app ");
-            var audioLink = document.createElement('a');
-            audioLink.href = '#';
-            audioLink.innerText = ' Play/Pause Audio';
-            audioLink.onclick = (e) => {
+            var audioImg = document.createElement('img');
+            audioImg.src = imgaudio; // Replace 'audio_icon.png' with the path to your audio icon image
+            audioImg.alt = 'Audio Icon'; // Optional: provide alt text for accessibility
+            audioImg.style.width = '32px'; // Adjust width as needed
+            audioImg.style.height = '32px'; // Adjust height as needed
+            audioImg.onclick = (e) => {
               e.preventDefault();
               //     var audio = new Audio(hotspot.audio);
               //     audio.play();
@@ -183,7 +189,7 @@ const Pano = ({ subchapterId, isTeacher }) => {
                 audioPlayer.current.pause();
               }
             };
-            element.appendChild(audioLink);
+            element.appendChild(audioImg);
           }
           marzipanoScene.hotspotContainer().createHotspot(element, { yaw: hotspot.yaw, pitch: hotspot.pitch });
         });
@@ -463,6 +469,8 @@ const Pano = ({ subchapterId, isTeacher }) => {
             left: '50%',
             right: 'auto',
             bottom: 'auto',
+            width: '50%',
+            height: '70%',
             marginRight: '-50%',
             transform: 'translate(-50%, -50%)',
             zIndex: '1000' // Ensure this is higher than other content but the background image is still visible
