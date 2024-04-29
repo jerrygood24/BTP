@@ -166,7 +166,7 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn, isTeacher }) {
               <>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                    <Avatar src="../data/profile.png" />
                   </IconButton>
                 </Tooltip>
                 <Menu
