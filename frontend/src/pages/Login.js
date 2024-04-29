@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -34,10 +34,16 @@ function Copyright(props) {
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
-export default function SignIn({ isLoggedIn, setIsLoggedIn }) {
+export default function SignIn({ isLoggedIn, setIsLoggedIn, setIsTeacher }) {
   const navigate = useNavigate();
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isTeacher, setIsTeacher] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/'); // Redirect to home page if already logged in
+    }
+  }, [isLoggedIn, navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -50,6 +56,7 @@ export default function SignIn({ isLoggedIn, setIsLoggedIn }) {
 
       if (response.status === 200) {
         setIsLoggedIn(true);
+        localStorage.setItem('isLoggedIn', true);
         //set the access_token in the localstorage
         // response.json().then(data => {
         //   const token = data.access;
@@ -84,6 +91,8 @@ export default function SignIn({ isLoggedIn, setIsLoggedIn }) {
           localStorage.setItem('student_id', userResponse.data[0].id);
           console.log(userResponse.data[0].id);
           // localStorage.setItem('student_id', response.data.user.student);
+          // localStorage.setItem('student_id', response.data.user.student);
+          setIsTeacher(false);
           navigate('/studentdashboard');
         }
         return (<div> DON DON DON</div>);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/Home';
@@ -15,19 +15,28 @@ import StudentDashboard from './pages/StudentDashboard';
 // import TeacherProfile from './pages/Teacher/TeacherProfile';
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isTeacher, setIsTeacher] = useState(false);
+
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn');
+    setIsLoggedIn(isLoggedIn === 'true');
+
+    const isTeacher = localStorage.getItem('isTeacher');
+    setIsTeacher(isTeacher === 'true');
+  }, []);
   return (
     <Router>
-      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+      <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} isTeacher={isTeacher} />
       <Box sx={{ paddingTop: '64px' }}></Box>
       <Routes>
         <Route exact path="/" element={<Home />} />
-        <Route path="/repository" element={<Repository />} />
+        {/* <Route path="/repository" element={<Repository />} /> */}
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
-        {!isLoggedIn && <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />}
+        {!isLoggedIn && <Route path="/login" element={<LoginPage setIsLoggedIn={setIsLoggedIn} setIsTeacher={setIsTeacher} />} />}
         
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/fileupload" element={<FileUpload />} />
+        {/* <Route path="/fileupload" element={<FileUpload />} /> */}
         <Route path="/teacherdashboard" element={<TeacherDashboard />} />
         <Route path="/studentdashboard" element={<StudentDashboard />} />
         {/* <Route path="/teacherdashboard" element={<TeacherPro />} /> */}

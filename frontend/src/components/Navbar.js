@@ -5,10 +5,10 @@ import Avatar from '@mui/material/Avatar';
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Home', 'Repository', 'About', 'Contact', 'FileUpload'];
+const pages = ['Home', 'About', 'Contact'];
 const settings = ['Logout'];
 
-function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
+function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn, isTeacher }) {
   const navigate = useNavigate();
 
   const handleRedirect = (page) => {
@@ -19,7 +19,6 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
       navigate(`/${page.toLowerCase()}`);
   };
 
-  const [isAuthenticated, setIsAuthenticated] = React.useState(false); // State to track user authentication
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -38,41 +37,24 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
     setAnchorElUser(null);
   };
 
-  const handleLogin = () => {
-    // Implement your login logic here
-    setIsAuthenticated(true);
-    handleCloseNavMenu();
-  };
-
-
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('teacher_id');
     localStorage.removeItem('student_id');
     setIsLoggedIn(false);
+    localStorage.removeItem('isLoggedIn'); 
     navigate('/login'); // Redirect to login page after logout
     handleCloseUserMenu(); // Close the menu after logout
   };
-
-  const handleProfileClick = () => {
-    // Implement profile logic here
-    navigate('/profile'); // Example navigation to profile page
-    handleCloseUserMenu(); // Close the menu after clicking profile
-  };
-
-  const handleAccountClick = () => {
-    // Implement account logic here
-    navigate('/account'); // Example navigation to account page
-    handleCloseUserMenu(); // Close the menu after clicking account
-  };
-
   const handleDashboardClick = () => {
-    // Implement dashboard logic here
-    navigate('/dashboard'); // Example navigation to dashboard page
-    handleCloseUserMenu(); // Close the menu after clicking dashboard
-  };
-
+    if (isTeacher) {
+      navigate('/teacherdashboard');
+    } else {
+      navigate('/studentdashboard');
+    }
+    handleCloseUserMenu();
+  }; 
 
   return (
     <AppBar position="fixed">
@@ -164,7 +146,7 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
                 </MenuItem>
               </Button>
             ))}
-            <Button
+            {/* <Button
               onClick={() => navigate('/teacherdashboard')}
               sx={{ my: 2, color: 'white' }}
             >
@@ -175,7 +157,7 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
               sx={{ my: 2, color: 'white' }}
             >
               <Typography textAlign="center">Student</Typography>
-            </Button>
+            </Button> */}
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
@@ -203,8 +185,11 @@ function ResponsiveAppBar({ isLoggedIn, setIsLoggedIn }) {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
+                  <MenuItem onClick={handleDashboardClick}>
+                    <Typography textAlign="center">Dashboard</Typography>
+                  </MenuItem>
                   {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleLogout} >
+                    <MenuItem key={setting} onClick={setting === 'Logout' ? handleLogout : handleCloseUserMenu}>
                       <Typography textAlign="center">{setting}</Typography>
                     </MenuItem>
                   ))}
