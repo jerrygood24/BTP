@@ -128,6 +128,7 @@ function SignUp() {
         localStorage.setItem('teacher_id', response.data.id);
         console.log("Teacher ID stored in localStorage:", localStorage.getItem('teacher_id'));
         console.log("Teacher details submitted successfully");
+        alert("Signup Successfull")
       } else {
         // Handle other response statuses
       }
@@ -155,6 +156,7 @@ function SignUp() {
         localStorage.setItem('student_id', response.data.id);
         console.log("Student ID stored in localStorage:", localStorage.getItem('student_id'));
         console.log("Student details submitted successfully");
+        alert("Signup Successfull");
       } else {
         // Handle other response statuses
       }

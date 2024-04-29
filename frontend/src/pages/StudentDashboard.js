@@ -20,7 +20,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Pano from "../components/Pano";
 import AddBoxIcon from '@mui/icons-material/AddBox';
 const isTeacher = false;
-let studentdata;
 const StudentDashboard = () => {
   const [lessons, setLessons] = useState([]);
   const [selectedChapter, setSelectedChapter] = useState(null);
@@ -31,8 +30,10 @@ const StudentDashboard = () => {
   const [subchapterId, setSubchapterId] = useState(null);
   const [quizDialogStates, setQuizDialogStates] = useState([]);
   const accessToken = localStorage.getItem("access_token");
+  const [data, setdata] = useState();
   useEffect(() => {
     fetchLessonsData();
+    fetchstudentdetails();
   }, []);
   // const fetchLessonsData = async () => {
   //   try {
@@ -60,12 +61,19 @@ const StudentDashboard = () => {
   //   }
   // };
   const fetchstudentdetails = async () => {
-    const student_id = localStorage.getItem("student_id");
-    studentdata = await axios.get(`http://127.0.0.1:8000/accounts/students/${student_id}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    try {
+      const student_id = localStorage.getItem("student_id");
+      const studentdata = await axios.get(`http://127.0.0.1:8000/accounts/students/${student_id}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setdata(studentdata.response.data);
+      console.log(data);
+    }
+    catch (error) {
+      console.error("Error fetching student details:", error);
+    }
   }
   const fetchLessonsData = async () => {
     try {
@@ -161,90 +169,86 @@ const StudentDashboard = () => {
 
   return (
     <>
-      <div style={{ marginLeft: "20px" }}>
+      <div style={{ margin: "20px" }}>
         <Typography variant="h6">Enroll in a Lesson</Typography>
         <input type="text" placeholder="Enter Enrollment Link" />
         <Button variant="contained" onClick={handleEnroll}>Enroll</Button>
       </div>
-      {/* <Box sx={{ m: 2, p: 2, height: 300, width: 200, border: 2 }} >
-      {studentdata ? (
-        <>
-          <Box display="flex" flexDirection="column" mt={2}>
-            <Box display={"flex"} direction={"row"} justifyContent={"center"} sx={{ m: 2 }}>
-              <Avatar>A</Avatar>
-            </Box>
-
-            <Box display={"flex"} direction={"row"} justifyContent={"space-between"}>
-              <Typography variant="h6">{data.name}</Typography>
-              <IconButton onClick={() => handleEditClick("Name")}>
-                <EditIcon />
-              </IconButton>
-            </Box>
-            </> ) : ()}
-            </Box> */}
-      <div style={{ display: "flex", margin: "100px" }}>
-
-        <div style={{ width: "15vw" }}>
-          <Box style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-            <Typography >Lessons</Typography>
-
-            <IconButton sx={{ ml: 1, mr: 1 }}>
-              {/* <AddBoxIcon/> */}
-            </IconButton>
-
-          </Box>
-          {lessons && lessons.map((lesson, lessonIndex) => (
-            <Accordion key={lessonIndex} expanded={lessonIndex === expandedLesson} onChange={() => setExpandedLesson(lessonIndex === expandedLesson ? null : lessonIndex)}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`lesson-${lessonIndex}-content`} id={`lesson-${lessonIndex}-header`}>
-                <Typography>{lesson.title}</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <List>
-                  {lesson.chapters && lesson.chapters.map((chapter, chapterIndex) => (
-                    <ListItem key={chapterIndex} onClick={() => handleChapterClick(lessonIndex, chapterIndex)}>
-                      <Button variant="contained">{chapter.title}</Button>
-                    </ListItem>
-                  ))}
-                </List>
-                <Button variant="outlined" onClick={() => handleAddQuiz(lessonIndex)}>Take Quiz</Button>
-                <Quizstudents inclose={quizDialogStates[lessonIndex]} onclose={() => handleCloseAddQuizDialog(lessonIndex)} title={lesson.lessonTitle} lessons={lessons} lessonindex={lessonIndex} />
-              </AccordionDetails>
-            </Accordion>
-
-          ))}
-        </div>
-
-        <Box
-          style={{
-            flex: 1,
-            border: "1px solid black",
-            padding: "20px",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          {selectedChapter ? (
+      <div style={{ display: 'flex' }}>
+        <Box sx={{ m: 2, p: 2, height: 300, width: 200, border: 2 }} >
+          {data ? (
             <>
-              <Box className="info"
-                style={{ display: "flex", flexDirection: "row" }}
-              >
-                <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
-                  {selectedChapter.lessonTitle}
-                </Typography>
-                <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
-                  {selectedChapter.chapterTitle}
-                </Typography>
+              <Box display="flex" flexDirection="column" mt={2}>
+                <Box display="flex" direction="row" justifyContent="center" sx={{ m: 2 }}>
+                  <img src={data.photo} alt="User Photo" style={{ width: '100px', height: '100px', borderRadius: '50%' }} />
+                </Box>
+
+                <Box display={"flex"} direction={"row"} justifyContent={"space-between"}>
+                  <Typography variant="h6">{data.name}</Typography>
+                </Box>
               </Box>
-              <div className="pano-container">
-                <div className="pano-box">
-                  <Pano subchapterId={subchapterId} isTeacher={isTeacher} />
-                </div>
-              </div>
-            </>
-          ) : (
-            <Typography variant="h6">Select a Chapter</Typography>
-          )}
+            </>) : (<Typography>Loading...</Typography>)}
         </Box>
+
+        <div style={{ display: "flex", margin: "100px" }}>
+
+          <div style={{ width: "15vw" }}>
+            <Box style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+              <Typography >Lessons</Typography>
+            </Box>
+            {lessons && lessons.map((lesson, lessonIndex) => (
+              <Accordion key={lessonIndex} expanded={lessonIndex === expandedLesson} onChange={() => setExpandedLesson(lessonIndex === expandedLesson ? null : lessonIndex)}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls={`lesson-${lessonIndex}-content`} id={`lesson-${lessonIndex}-header`}>
+                  <Typography>{lesson.title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List>
+                    {lesson.chapters && lesson.chapters.map((chapter, chapterIndex) => (
+                      <ListItem key={chapterIndex} onClick={() => handleChapterClick(lessonIndex, chapterIndex)}>
+                        <Button variant="contained">{chapter.title}</Button>
+                      </ListItem>
+                    ))}
+                  </List>
+                  <Button variant="outlined" onClick={() => handleAddQuiz(lessonIndex)}>Take Quiz</Button>
+                  <Quizstudents inclose={quizDialogStates[lessonIndex]} onclose={() => handleCloseAddQuizDialog(lessonIndex)} title={lesson.lessonTitle} lessons={lessons} lessonindex={lessonIndex} />
+                </AccordionDetails>
+              </Accordion>
+
+            ))}
+          </div>
+
+          <Box
+            style={{
+              flex: 1,
+              border: "1px solid black",
+              padding: "20px",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {selectedChapter ? (
+              <>
+                <Box className="info"
+                  style={{ display: "flex", flexDirection: "row" }}
+                >
+                  <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
+                    {selectedChapter.lessonTitle}
+                  </Typography>
+                  <Typography variant="h6" sx={{ ml: 1, mr: 1 }}>
+                    {selectedChapter.chapterTitle}
+                  </Typography>
+                </Box>
+                <div className="pano-container">
+                  <div className="pano-box">
+                    <Pano subchapterId={subchapterId} isTeacher={isTeacher} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <Typography variant="h6">Select a Chapter</Typography>
+            )}
+          </Box>
+        </div>
       </div>
     </>
   );
